@@ -9,8 +9,6 @@ servers:
 paths:
   /alerts/queries/alerts/v2:
     get:
-      security:
-        - OAuth2: [alerts:read]
       operationId: GetQueriesAlertsV2
       summary: "Query all alerts currently on CrowdStrike. This API will return a list of Alert IDs"
       parameters:
