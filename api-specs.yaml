@@ -131,7 +131,7 @@ paths:
   /devices/combined/devices/login-history/v2:
     post:
       operationId: QueryDeviceLoginHistoryV2
-      summary: "Retrieve details about recent interactive login sessions for a set of devices powered by the Host Timeline."
+      description: "Retrieve details about recent interactive login sessions for a set of devices powered by the Host Timeline."
       requestBody:
         required: true
         content:
