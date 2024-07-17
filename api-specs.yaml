@@ -128,6 +128,36 @@ paths:
               schema:
                 $ref: "#/components/schemas/PostEntitiesAlertsV2Response"
 
+  /devices/combined/devices/login-history/v2:
+    post:
+      operationId: QueryDeviceLoginHistoryV2
+      summary: "Retrieve details about recent interactive login sessions for a set of devices powered by the Host Timeline."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/IdsRequest"
+      responses:
+        "200":
+          description: "OK"
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginHistoryResponseV1"
+        "403":
+          description: "Forbidden"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReplyMetaOnly"
+        "429":
+          description: "Too Many Requests"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReplyMetaOnly"
+
 components:
   schemas:
     ReplyMetaOnly:
@@ -452,3 +482,63 @@ components:
           type: string
           format: date-time
           example: "2024-06-25T10:01:41.496740025Z"
+
+    IdsRequest:
+      type: object
+      required:
+        - ids
+      properties:
+        ids:
+          type: array
+          items:
+            type: string
+
+    LoginHistoryResponseV1:
+      type: object
+      required:
+        - errors
+        - meta
+        - resources
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: "#/components/schemas/APIError"
+        meta:
+          $ref: "#/components/schemas/MetaInfo"
+        resources:
+          type: array
+          items:
+            $ref: "#/components/schemas/LoginDetailV1"
+
+    LoginDetailV1:
+      type: object
+      required:
+        - cid
+        - device_id
+        - recent_logins
+      properties:
+        cid:
+          type: string
+          description: "cid"
+          example: "ddae18657d0a426db6afacce64c540a6"
+        device_id:
+          type: string
+          description: "Device Id"
+          example: "d74c838dfa3e467481caa0807ba598d3"
+        recent_logins:
+          type: array
+          items:
+            $ref: "#/components/schemas/LoginInfoV1"
+
+    LoginInfoV1:
+      type: object
+      properties:
+        login_time:
+          type: string
+          description: "Login timestamp"
+          example: "2024-06-20T03:58:16Z"
+        user_name:
+          type: string
+          description: "Username"
+          example: "Docker"
