@@ -84,7 +84,7 @@ paths:
   /alerts/entities/alerts/v2:
     post:
       operationId: PostEntitiesAlertsV2
-      description: "Query to get detail of a list of alerts, take input as alert ids, return a list of details"
+      description: "Query to get detail information of alerts, take input as a list of alert ids, return alert information. If user pass only 1 alert id, still call this function"
       parameters:
         - in: query
           name: include_hidden
@@ -828,7 +828,7 @@ components:
           type: array
           items:
             type: string
-            description: "ID(s) of the alerts to retrieve."
+            description: "id(s) of the alerts that need to query information"
 
     PostEntitiesAlertsV2Response:
       type: object
