@@ -10,7 +10,7 @@ Descriptor:
     - Query hosts information
     - Query iocs information
     - Query incidents information
-  Icon: https://raw.githubusercontent.com/truongphung12947/copilot-manifest/main/crowdstrike-falcon/crowdstrike_logo.png
+  Icon: https://raw.githubusercontent.com/truongphung12947/copilot-manifest/main/crowdstrike-falcon/crowdstrike_logo_transparent.png
   SupportedAuthTypes:
     - OAuthClientCredentialsFlow
   Authorization:
