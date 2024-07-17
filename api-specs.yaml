@@ -79,6 +79,55 @@ paths:
               schema:
                 $ref: "#/components/schemas/ReplyMetaOnly"
 
+  /alerts/entities/alerts/v2:
+    post:
+      operationId: PostEntitiesAlertsV2
+      description: "Retrieves all Alerts detail information given their IDs"
+      parameters:
+        - in: query
+          name: include_hidden
+          schema:
+            default: true
+            type: boolean
+          description: "allows previously hidden alerts to be retrieved"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PostEntitiesAlertsV2Request"
+      responses:
+        "200":
+          description: "OK"
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PostEntitiesAlertsV2Response"
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PostEntitiesAlertsV2Response"
+        "403":
+          description: "Forbidden"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReplyMetaOnly"
+        "429":
+          description: "Too Many Requests"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReplyMetaOnly"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PostEntitiesAlertsV2Response"
+
 components:
   schemas:
     ReplyMetaOnly:
@@ -170,3 +219,236 @@ components:
             type: string
             description: "Alert ID"
             example: "ddae18657d0a426db6afacce64c540a6:ngsiem:ddae18657d0a426db6afacce64c540a6:dd40545edb0e427aa50887c34e4178a1"
+
+    PostEntitiesAlertsV2Request:
+      type: object
+      required:
+        - composite_ids
+      properties:
+        composite_ids:
+          type: array
+          items:
+            type: string
+            description: "ID(s) of the alerts to retrieve."
+
+    PostEntitiesAlertsV2Response:
+      type: object
+      required:
+        - meta
+        - resources
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: "#/components/schemas/APIError"
+        meta:
+          $ref: "#/components/schemas/MetaInfo"
+        resources:
+          description: "Resources represent the slice of Alerts that were retrieved for the given Alert IDs"
+          type: array
+          items:
+            $ref: "#/components/schemas/Alert"
+
+    Alert:
+      type: object
+      required:
+        - aggregate_id
+        - seconds_to_resolved
+        - seconds_to_triaged
+        - type
+      properties:
+        agent_id:
+          description: "device or sensor ID for which the Alert was generated"
+          type: string
+        aggregate_id:
+          description: "common linkage between multiple Alerts that belong to the same detection bouquet"
+          type: string
+        assigned_to_name:
+          description: "name of the person this Alert is assigned to"
+          type: string
+        assigned_to_uid:
+          description: "user ID to which this Alert is assigned to"
+          type: string
+        assigned_to_uuid:
+          description: "uuid to which this Alert is assigned to"
+          type: string
+        cid:
+          description: "unique ID of CrowdStrike object"
+          type: string
+          example: "ddae18657d0a426db6afacce64c540a6"
+        composite_id:
+          description: "alert ID"
+          type: string
+          example: "ddae18657d0a426db6afacce64c540a6:ngsiem:ddae18657d0a426db6afacce64c540a6:45e516cdf05143a2a452fe999984b562"
+        confidence:
+          description: "confidence is a 1-100 integer value denoting the confidence that, when this Alert fires, it is indicative of malicious activity"
+          type: integer
+          format: integer
+        correlation_rule_execution_id:
+          description: "correlation rule execution ID"
+          type: string
+        correlation_rule_id:
+          description: "correlation rule ID"
+          type: string
+        correlation_rule_user_id:
+          description: "correlation rule User ID created"
+          type: string
+        correlation_rule_user_uuid:
+          description: "correlation rule User UUID created"
+          type: string
+        crawl_edge_ids:
+          description: "internal only"
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+        crawl_vertex_ids:
+          description: "internal only"
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+        crawled_timestamp:
+          description: "indicates when ThreatGraph was crawled to gather info for this alert creation/update"
+          type: string
+          format: date-time
+          example: "2024-06-25T10:01:41.496747887Z"
+        created_timestamp:
+          description: "indicates when the Alert was first written to backend store"
+          type: string
+          format: date-time
+          example: "2024-06-25T10:01:41.496747887Z"
+        data_domains:
+          description: "data Domains represents domains to which this alert belongs to"
+          type: array
+          items:
+            type: string
+        description:
+          description: "short, customer-visible summary of the detected activity"
+          type: string
+        display_name:
+          description: "customer visible name for the Alert's pattern"
+          type: string
+        detection_id:
+          description: "id of Detection rule"
+          type: string
+        email_sent:
+          description: "boolean to know if we sent email regarding this Alert"
+          type: boolean
+        es_doc_id:
+          description: "internal only"
+          type: string
+        es_doc_version:
+          description: "internal only"
+          type: integer
+          format: int64
+        es_routing_id:
+          description: "internal only"
+          type: string
+        es_source_size:
+          description: "internal only"
+          type: integer
+          format: int32
+        external:
+          description: "boolean indicating if this Alert is internal or external"
+          type: boolean
+        falcon_host_link:
+          description: "CrowdStrike Falcon Host URL"
+          type: string
+        id:
+          description: "vertex key which triggers the formation of the Alert"
+          type: string
+        name:
+          description: "pattern Name coming either from Taxonomy or directly from the ingested Alert"
+          type: string
+        objective:
+          description: "end goal that an attack adversary intends to achieve according to MITRE"
+          type: string
+        pattern_id:
+          description: "taxonomy patternID for this Alert"
+          type: integer
+          format: integer
+        platform:
+          description: "platform that this Alert was triggered on e.g. Android, Windows, etc.."
+          type: string
+        poly_id:
+          type: string
+        product:
+          description: "product specifies the SKU that this Alert belongs to e.g. mobile, idp, epp"
+          type: string
+        scenario:
+          description: "scenario was used pre-Handrails to display additional killchain context for UI alerts. With handrails, this field is mostly obsolete in favor of tactic/technique. Still, it can be useful for determining specific pattern types that are not straightforward to distinguish from other fields alone"
+          type: string
+        seconds_to_resolved:
+          description: "seconds To Resolved represents the seconds elapsed since this alert has been resolved"
+          type: integer
+          format: int64
+        seconds_to_triaged:
+          description: "seconds To Triage represents the seconds elapsed since this alert has been triaged"
+          type: integer
+          format: int64
+        severity:
+          description: "severity is also a 1-100 integer value, but unlike confidence severity impacts how a Alert is displayed in the UI"
+          type: integer
+          format: int32
+          example: 50
+        severity_name:
+          description: "severity name is a UI friendly bucketing of the severity integer"
+          type: string
+          example: high
+        show_in_ui:
+          description: "boolean indicating if this Alert will be shown in the UI or if it's hidden"
+          type: boolean
+        show_in_ui_updated_timestamp:
+          type: string
+          format: date-time
+        source_products:
+          description: "source Products are products that produced events which contributed to this alert"
+          type: array
+          items:
+            type: string
+        source_vendors:
+          description: "source Vendors are vendors that produced events which contributed to this alert"
+          type: array
+          items:
+            type: string
+        status:
+          description: "could be one of the following - New, closed, in_progress, reopened"
+          type: string
+          example: "new"
+        tactic:
+          description: "tactic and Technique are references to MITRE ATT&CK, which is a public framework for tracking and modeling adversary tools techniques and procedures"
+          type: string
+          example: "Credential Access"
+        tactic_id:
+          description: "unique ID for the tactic seen in the Alert"
+          type: string
+          example: "TA0006"
+        tags:
+          description: "Tags are string values associated with the alert that can be added or removed through the API"
+          type: array
+          items:
+            type: string
+        technique:
+          description: "Tactic and Technique are references to MITRE ATT&CK, which is a public framework for tracking and modeling adversary tools techniques and procedures"
+          type: string
+          example: "Forced Authentication"
+        technique_id:
+          description: "Unique ID for the technique seen in the Alert"
+          type: string
+          example: "T1187"
+        timestamp:
+          description: "stored value coming in directly from the ingested event or set by cloud in the absence of it"
+          type: string
+          format: date-time
+        type:
+          description: "Type of definition Detections Extensibility use. Keyed-off of Pattern of the incoming events/Alerts"
+          type: string
+          example: "correlation-detection"
+        updated_timestamp:
+          description: "indicates when the Alert was last modified"
+          type: string
+          format: date-time
+          example: "2024-06-25T10:01:41.496740025Z"
