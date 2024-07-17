@@ -9,6 +9,8 @@ servers:
 paths:
   /alerts/queries/alerts/v2:
     get:
+      security:
+        - OAuth2: [alerts:read]
       operationId: GetQueriesAlertsV2
       description: "Query all alerts currently on CrowdStrike. This API will return a list of Alert IDs"
       parameters:
@@ -80,6 +82,52 @@ paths:
                 $ref: "#/components/schemas/ReplyMetaOnly"
 
 components:
+  securitySchemes:
+    OAuth2:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://api.us-2.crowdstrike.com/oauth2/token
+          scopes:
+            "apps:read": "Grants read access on apps resources"
+            "apps:write": "Grants write access on apps resources"
+            "aspm-admin:read": "Grants read access on aspm-admin resources"
+            "aspm-admin:write": "Grants write access on aspm-admin resources"
+            "aspm-falcon-admin:write": "Grants write access on aspm-falcon-admin resources"
+            "aspm-user:read": "Grants read access on aspm-user resources"
+            "aspm-user:write": "Grants write access on aspm-user resources"
+            "aspm-viewer:read": "Grants read access on aspm-viewer resources"
+            "cspm-registration:read": "Grants read access on cspm-registration resources"
+            "cspm-remediation:write": "Grants write access on cspm-remediation resources"
+            "cspm-sensormgmt:write": "Grants write access on cspm-sensormgmt resources"
+            "custom-storage:read": "Grants read access on custom-storage resources"
+            "custom-storage:write": "Grants write access on custom-storage resources"
+            "devices:read": "Grants read access on devices resources"
+            "devices:write": "Grants write access on devices resources"
+            "falcon-container-cli:write": "Grants write access on falcon-container-cli resources"
+            "fim:read": "Grants read access on fim resources"
+            "iac:read": "Grants read access on iac resources"
+            "iac:write": "Grants write access on iac resources"
+            "identity-automation:read": "Grants read access on identity-automation resources"
+            "identity-automation:write": "Grants write access on identity-automation resources"
+            "identity-detections:read": "Grants read access on identity-detections resources"
+            "identity-enforcement:read": "Grants read access on identity-enforcement resources"
+            "identity-enforcement:write": "Grants write access on identity-enforcement resources"
+            "identity-health:read": "Grants read access on identity-health resources"
+            "identity-mfa-tool:write": "Grants write access on identity-mfa-tool resources"
+            "kubernetes-protection-agent:write": "Grants write access on kubernetes-protection-agent resources"
+            "mssp:read": "Grants read access on mssp resources"
+            "provisioning:read": "Grants read access on provisioning resources"
+            "provisioning:write": "Grants write access on provisioning resources"
+            "real-time-response-app:write": "Grants write access on real-time-response-app resources"
+            "recon-monitoring-rules:read": "Grants read access on recon-monitoring-rules resources"
+            "recon-monitoring-rules:write": "Grants write access on recon-monitoring-rules resources"
+            "sensor-installers:read": "Grants read access on sensor-installers resources"
+            "snapshot:write": "Grants write access on snapshot resources"
+            "usage-api:read": "Grants read access on usage-api resources"
+            "usermgmt:read": "Grants read access on usermgmt resources"
+            "usermgmt:write": "Grants write access on usermgmt resources"
+            "zero-trust-assessment:read": "Grants read access on zero-trust-assessment resources"
   schemas:
     ReplyMetaOnly:
       type: object
