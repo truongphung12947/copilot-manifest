@@ -1,6 +1,6 @@
 Descriptor:
   Name: CrowdStrike Falcon
-  DisplayName: CrowdStrike Falcon
+  DisplayName: CrowdStrike Falcon (Preview)
   DescriptionDisplay: Get access to CrowdStrike Falcon to query alerts, incidents, iocs and hosts
   Description: |-
     Use this skillset to call CrowdStrike Falcon APIs to perform actions accross the CrowdStrike Falcon platform.
