@@ -8,7 +8,7 @@ Descriptor:
     - This skill only invokes the CrowdStrike Falcon APIs.
     - Query alerts information
     - Query hosts information
-    - Query IoCs information
+    - Query iocs information
     - Query incidents information
   Icon: https://raw.githubusercontent.com/truongphung12947/copilot-manifest/main/crowdstrike-falcon/crowdstrike_logo.png
   SupportedAuthTypes:
