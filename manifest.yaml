@@ -23,4 +23,4 @@ Descriptor:
 SkillGroups:
   - Format: API
     Settings:
-      OpenApiSpecUrl: https://dev.azure.com/fsoft-sas/AlertIQ/_apis/git/repositories/alertiq-copilot-integration/Items?path=/copilot-api-spec.yaml&recursionLevel=0&versionDescriptor.version=dev&versionDescriptor.versionOptions=0&versionDescriptor.versionType=0&includeContent=true&resolveLfs=true
+      OpenApiSpecUrl: https://raw.githubusercontent.com/truongphung12947/copilot-manifest/main/api-specs.yaml
