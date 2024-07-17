@@ -12,7 +12,7 @@ paths:
   /alerts/queries/alerts/v2:
     get:
       operationId: GetQueriesAlertsV2
-      description: "Query all alerts currently on CrowdStrike. This API will return a list of Alert IDs"
+      description: "Query to get a list of alerts, return a list of alert ids, if user do not request additional information, use default parameters"
       parameters:
         - in: query
           name: include_hidden
@@ -84,7 +84,7 @@ paths:
   /alerts/entities/alerts/v2:
     post:
       operationId: PostEntitiesAlertsV2
-      description: "Retrieves all Alerts detail information given their IDs"
+      description: "Query to get detail of a list of alerts, take input as alert ids, return a list of details"
       parameters:
         - in: query
           name: include_hidden
@@ -133,7 +133,7 @@ paths:
   /devices/combined/devices/login-history/v2:
     post:
       operationId: QueryDeviceLoginHistoryV2
-      description: "Retrieve details about recent interactive login sessions for a set of devices powered by the Host Timeline."
+      description: "Query to get interactive login sessions for a set of devices, take input as device ids, return a list of login information"
       requestBody:
         required: true
         content:
@@ -163,7 +163,7 @@ paths:
   /devices/combined/devices/network-address-history/v1:
     post:
       operationId: QueryGetNetworkAddressHistoryV1
-      description: "Retrieve history of IP and MAC addresses of devices."
+      description: "Query to get IP and MAC addresses that the devices registered to CrowdStrike Falcon platform, take input as device ids, return a list of IP, Mac addresses and timestamp"
       requestBody:
         required: true
         content:
@@ -193,7 +193,7 @@ paths:
   /devices/entities/devices/v2:
     post:
       operationId: GetDeviceDetailsV2
-      description: "Get details on one or more hosts by providing agent IDs (AID)."
+      description: "Query to get information about one or more hosts, take input as host ids, return a list of hosts's information"
       parameters:
         - in: query
           name: ids
@@ -227,7 +227,7 @@ paths:
   /devices/queries/devices/v1:
     get:
       operationId: QueryDevicesByFilter
-      description: "Search for hosts in your environment by platform, hostname, IP, and other criteria."
+      description: "Query to get a list of hosts registered on CrowdStrike Falcon, return a list of information about hosts"
       parameters:
         - in: query
           name: offset
@@ -274,7 +274,7 @@ paths:
   /iocs/aggregates/indicators/device-count/v1:
     get:
       operationId: IndicatorGetDeviceCountV1
-      description: "Number of hosts in your customer account that have observed a given custom IOC"
+      description: "Query to get all hosts that have observed a given custom IOC, take in put IOC information (type and value), return total count of hosts"
       parameters:
         - in: query
           name: type
@@ -311,7 +311,7 @@ paths:
   /iocs/entities/indicators/v1:
     get:
       operationId: IndicatorGetV1
-      description: "Get Indicators by ids."
+      description: "Query to get detail of IoC (Indicator of Compromise), take input as IoC ids, return IoC details"
       parameters:
         - in: query
           name: ids
@@ -342,7 +342,7 @@ paths:
   /iocs/queries/indicators/v1:
     get:
       operationId: IndicatorSearchV1
-      description: "Get Indicators aggregates as specified via json in the request body."
+      description: "Query to get a list of IoC (Indicator of Compromise), return a list of IoC ids"
       parameters:
         - in: query
           name: filter
