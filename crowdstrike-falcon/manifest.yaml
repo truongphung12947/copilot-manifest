@@ -3,13 +3,17 @@ Descriptor:
   DisplayName: CrowdStrike Falcon
   DescriptionDisplay: Get access to CrowdStrike Falcon to query alerts, incidents, iocs and hosts
   Description: |-
-    Use this skillset to call CrowdStrike Falcon APIs to perform actions across CrowdStrike Falcon platform.
-    - Some query require Falcon Query Language
-    - This skill only invokes the CrowdStrike Falcon APIs.
-    - Query alerts information
-    - Query hosts information
-    - Query iocs information
-    - Query incidents information
+    Use this skillset to call CrowdStrike Falcon APIs to perform actions accross the CrowdStrike Falcon platform.
+    - This skill invokes CrowdStrike Falcon's REST API
+    - Query to get a list of alerts, return a list of alert ids
+    - Query to get detail of a list of alerts, take input as alert ids, return a list of details
+    - Query to get interactive login sessions for a set of devices, take input as device ids, return a list of login information
+    - Query to get IP and MAC addresses that the devices registered to CrowdStrike Falcon platform, take input as device ids, return a list of IP, Mac addresses and timestamp
+    - Query to get a list of hosts registered on CrowdStrike Falcon, return a list of information about hosts
+    - Query to get information about one or more hosts, take input as host ids, return a list of hosts's information
+    - Query to get all hosts that have observed a given custom IOC, take in put IOC information (type and value), return total count of hosts
+    - Query to get detail of IoC (Indicator of Compromise), take input as IoC ids, return IoC details
+    - Query to get a list of IoC (Indicator of Compromise), return a list of IoC ids
   Icon: https://raw.githubusercontent.com/truongphung12947/copilot-manifest/main/crowdstrike-falcon/crowdstrike_logo_transparent.png
   SupportedAuthTypes:
     - OAuthClientCredentialsFlow
