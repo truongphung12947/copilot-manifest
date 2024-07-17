@@ -1,8 +1,10 @@
 openapi: 3.0.0
+
 info:
   title: CrowdStrike Falcon
   description: CrowdStrike Falcon
   version: "1.0"
+
 servers:
   - url: https://api.us-2.crowdstrike.com
 
@@ -127,7 +129,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/PostEntitiesAlertsV2Response"
-
+            
   /devices/combined/devices/login-history/v2:
     post:
       operationId: QueryDeviceLoginHistoryV2
@@ -157,6 +159,573 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ReplyMetaOnly"
+
+  /devices/combined/devices/network-address-history/v1:
+    post:
+      operationId: QueryGetNetworkAddressHistoryV1
+      description: "Retrieve history of IP and MAC addresses of devices."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/IdsRequest"
+      responses:
+        "200": 
+          description: "OK"
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NetworkAddressHistoryResponseV1"
+        "403":
+          description: "Forbidden"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReplyMetaOnly"
+        "429":
+          description: "Too Many Requests"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReplyMetaOnly"
+
+  /devices/entities/devices/v2:
+    post:
+      operationId: GetDeviceDetailsV2
+      description: "Get details on one or more hosts by providing agent IDs (AID)."
+      parameters:
+        - in: query
+          name: ids
+          required: true
+          schema:
+            maxItems: 100            
+            type: array
+            items:
+              type: string
+          description: "the host agentIDs used to get details on"
+      responses:
+        "200": 
+          description: "OK"
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeviceDetailsResponse"
+        "403":
+          description: "Forbidden"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReplyMetaOnly"
+        "429":
+          description: "Too Many Requests"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReplyMetaOnly"
+
+  /devices/queries/devices/v1:
+    get:
+      operationId: QueryDevicesByFilter
+      description: "Search for hosts in your environment by platform, hostname, IP, and other criteria."
+      parameters:
+        - in: query
+          name: offset
+          schema:
+            type: integer
+          description: "The offset to start retrieving records from"
+        - in: query
+          name: limit
+          schema:
+            maximum: 5000
+            minimum: 1
+            type: integer
+          description: "The maximum records to return. [1-5000]"
+        - in: query
+          name: sort
+          schema:
+            type: string 
+          description: "The property to sort by (e.g. status.desc or hostname.asc)"
+        - in: query
+          name: filter
+          schema:
+            type: string 
+          description: "The filter expression that should be used to limit the results."
+      responses:
+        "200": 
+          description: "OK"
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QueryResponse"
+        "403":
+          description: "Forbidden"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReplyMetaOnly"
+        "429":
+          description: "Too Many Requests"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReplyMetaOnly"
+
+  /iocs/aggregates/indicators/device-count/v1:
+    get:
+      operationId: IndicatorGetDeviceCountV1
+      description: "Number of hosts in your customer account that have observed a given custom IOC"
+      parameters:
+        - in: query
+          name: type
+          required: true
+          schema:
+            type: string 
+          description: "The type of the indicator. Valid types include: sha256 (A hex-encoded sha256 hash string. Length - min: 64, max: 64.), md5 (A hex-encoded md5 hash string. Length - min 32, max: 32.), domain (A domain name. Length - min: 1, max: 200.), ipv4 (An IPv4 address. Must be a valid IP address.), ipv6 (An IPv6 address. Must be a valid IP address.)"
+        - in: query
+          name: value
+          required: true
+          schema:
+            type: string 
+          description: "The string representation of the indicator."
+      responses:
+        "200": 
+          description: "OK"
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeviceCountRespV1"
+        "403":
+          description: "Forbidden"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReplyMetaOnly"
+        "429":
+          description: "Too Many Requests"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReplyMetaOnly"
+
+  /iocs/entities/indicators/v1:
+    get:
+      operationId: IndicatorGetV1
+      description: "Get Indicators by ids."
+      parameters:
+        - in: query
+          name: ids
+          schema:
+            type: string 
+          required: true
+          description: "The ids of the Indicators to retrieve."
+      responses:
+        "200": 
+          description: "OK"
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IndicatorRespV1"
+        "403":
+          description: "Forbidden"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReplyMetaOnly"
+        "429":
+          description: "Too Many Requests"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReplyMetaOnly"
+
+  /iocs/queries/indicators/v1:
+    get:
+      operationId: IndicatorSearchV1
+      description: "Get Indicators aggregates as specified via json in the request body."
+      parameters:
+        - in: query
+          name: filter
+          schema:
+            type: string 
+          description: "FQL Syntax formatted filter that should be used to limit the results."
+        - in: query
+          name: offset
+          schema:
+            type: integer
+          description: "The offset to start retrieving records from."        
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: "Maximum number of results to return."
+        - in: query
+          name: sort
+          schema:
+            type: string
+            enum:
+              - "action"
+              - "applied_globally"
+              - "metadata.av_hits"
+              - "metadata.company_name.raw"
+              - "created_by"
+              - "created_on"
+              - "expiration"
+              - "expired"
+              - "metadata.filename.raw"
+              - "modified_by"
+              - "modified_on"
+              - "metadata.original_filename.raw"
+              - "metadata.product_name.raw"
+              - "metadata.product_version"
+              - "severity_number"
+              - "source"
+              - "type"
+              - "value"
+          description: "The sort expression that should be used to sort the results."
+        - in: query
+          name: after
+          schema:
+            type: string 
+          description: "A pagination token used with the limit parameter to manage pagination of results."
+        - in: query
+          name: from_parent
+          schema:
+            type: boolean
+          description: "The filter for returning either only indicators for the request customer or its MSSP parents"
+      responses:
+        "200": 
+          description: "OK"
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IndicatorQueryRespV1"
+        "403":
+          description: "Forbidden"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReplyMetaOnly"
+        "429":
+          description: "Too Many Requests"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReplyMetaOnly"
+
+  /incidents/combined/crowdscores/v1:
+    get:
+      operationId: CrowdScore
+      description: "Query environment wide CrowdScore and return the entity data"
+      parameters:
+        - in: query
+          name: filter
+          schema:
+            type: string
+          description: "Optional filter FQL Syntax formatted string used to limit the results."
+        - in: query
+          name: limit
+          schema:
+            minimum: 1
+            maximum: 2500
+            type: integer
+          description: "Maximum number of records to return. (Max: 2500)"
+        - in: query
+          name: offset
+          schema:
+            type: integer
+          description: "Starting index of overall result set from which to return ids."
+        - in: query
+          name: sort
+          schema:
+            enum:
+              - "adjusted_score.asc"
+              - "adjusted_score.desc"
+              - "score.asc"
+              - "score.desc"
+              - "timestamp.asc"
+              - "timestamp.desc"
+            type: string 
+          description: "The property to sort by. (Ex: modified_timestamp.desc) followed by the sort direction, either asc or desc"
+      responses:
+        "200": 
+          description: "OK"
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EnvironmentScoreResponse"
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReplyMetaOnly"
+        "403":
+          description: "Forbidden"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReplyMetaOnly"
+        "429":
+          description: "Too Many Requests"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReplyMetaOnly"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReplyMetaOnly"
+
+  /incidents/entities/behaviors/GET/v1:
+    post:
+      operationId: GetBehaviors
+      description: "Get details on behaviors by providing behavior IDs"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/IdsRequest"
+      responses:
+        "200": 
+          description: "OK"
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MsaExternalBehaviorResponse"
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReplyMetaOnly"
+        "403":
+          description: "Forbidden"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReplyMetaOnly"
+        "429":
+          description: "Too Many Requests"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReplyMetaOnly"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReplyMetaOnly"
+  
+  /incidents/entities/incidents/GET/v1:
+    post:
+      operationId: GetIncidents
+      description: "Get details on incidents by providing behavior IDs"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/IdsRequest"
+      responses:
+        "200": 
+          description: "OK"
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MsaExternalIncidentResponse"
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReplyMetaOnly"
+        "403":
+          description: "Forbidden"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReplyMetaOnly"
+        "429":
+          description: "Too Many Requests"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReplyMetaOnly"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReplyMetaOnly"
+
+  /incidents/queries/behaviors/v1:
+    get:
+      operationId: QueryBehaviors
+      description: "Search for behaviors by providing a FQL filter, sorting, and paging details"
+      parameters:
+        - in: query
+          name: filter
+          schema:
+            type: string
+          description: "Optional filter and sort criteria FQL Syntax formatted string used to limit the results."
+        - in: query
+          name: offset
+          schema:
+            type: integer
+          description: "Starting index of overall result set from which to return ids."
+        - in: query
+          name: limit
+          schema:
+            maximum: 500
+            minimum: 1
+            type: integer
+          description: "The maximum records to return. [1-500]"
+        - in: query
+          name: sort
+          schema:
+            enum:
+              - "alert_ids.asc"
+              - "alert_ids.desc"
+              - "cmdline.asc"
+              - "cmdline.desc"
+              - "detection_ids.asc"
+              - "detection_ids.desc"
+              - "display_name.asc"
+              - "display_name.desc"
+              - "domain.asc"
+              - "domain.desc"
+              - "filepath.asc"
+              - "filepath.desc"
+              - "timestamp.asc"
+              - "timestamp.desc"
+            type: string 
+          description: "The property to sort by. (Ex: modified_timestamp.desc)"
+      responses:
+        "200": 
+          description: "OK"
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QueryResponse"
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReplyMetaOnly"
+        "403":
+          description: "Forbidden"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReplyMetaOnly"
+        "429":
+          description: "Too Many Requests"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReplyMetaOnly"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReplyMetaOnly"
+
+  /incidents/queries/incidents/v1:
+    get:
+      operationId: QueryIncidents
+      description: "Search for incidents by providing a FQL filter, sorting, and paging details"
+      parameters:
+        - in: query
+          name: filter
+          schema:
+            type: string
+          description: "FQL Syntax formatted string used to limit the results."
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            maximum: 500
+            minimum: 1
+          description: "The maximum records to return. [1-500]"
+        - in: query
+          name: offset
+          schema:
+            type: integer
+          description: "Starting index of overall result set from which to return ids."
+        - in: query
+          name: sort
+          schema:
+            type: string
+            enum:
+              - "assigned_to.asc"
+              - "assigned_to.desc"
+              - "assigned_to_name.asc"
+              - "assigned_to_name.desc"
+              - "end.asc"
+              - "end.desc"
+              - "modified_timestamp.asc"
+              - "modified_timestamp.desc"
+              - "name.asc"
+              - "name.desc"
+              - "sort_score.asc"
+              - "sort_score.desc"
+              - "start.asc"
+              - "start.desc"
+              - "state.asc"
+              - "state.desc"
+              - "status.asc"
+              - "status.desc"
+          description: "The property to sort by. (Ex: modified_timestamp.desc)"
+      responses:
+        "200": 
+          description: "OK"
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MsaIncidentQueryResponse"
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReplyMetaOnly"
+        "403":
+          description: "Forbidden"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReplyMetaOnly"
+        "429":
+          description: "Too Many Requests"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReplyMetaOnly"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReplyMetaOnly"
+
+
+
+
+
+
+
+
+
+
+
+
 
 components:
   schemas:
@@ -356,7 +925,7 @@ components:
           items:
             type: string
         description:
-          description: "short, customer-visible summary of the detected activity"
+          description: "short, customer-visible description of the detected activity"
           type: string
         display_name:
           description: "customer visible name for the Alert's pattern"
@@ -493,23 +1062,17 @@ components:
           items:
             type: string
 
-    LoginHistoryResponseV1:
+    LoginInfoV1:
       type: object
-      required:
-        - errors
-        - meta
-        - resources
       properties:
-        errors:
-          type: array
-          items:
-            $ref: "#/components/schemas/APIError"
-        meta:
-          $ref: "#/components/schemas/MetaInfo"
-        resources:
-          type: array
-          items:
-            $ref: "#/components/schemas/LoginDetailV1"
+        login_time:
+          type: string
+          description: "Login timestamp"
+          example: "2024-06-20T03:58:16Z"
+        user_name:
+          type: string
+          description: "Username"
+          example: "Docker"
 
     LoginDetailV1:
       type: object
@@ -531,14 +1094,1228 @@ components:
           items:
             $ref: "#/components/schemas/LoginInfoV1"
 
-    LoginInfoV1:
+    LoginHistoryResponseV1:
+      type: object
+      required:
+        - errors
+        - meta
+        - resources
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: "#/components/schemas/APIError"
+        meta:
+          $ref: "#/components/schemas/MetaInfo"
+        resources:
+          type: array
+          items:
+            $ref: "#/components/schemas/LoginDetailV1"
+
+    NetworkAddressV1:
       type: object
       properties:
-        login_time:
+        ip_address:
           type: string
-          description: "Login timestamp"
+          description: "Ip address of device"
+          example: "20.20.20.21"
+        mac_address:
+          type: string
+          description: "MAC address of device"
+          example: "02-12-6b-86-06-47"
+        timestamp:
+          type: string
+          description: "Timestamp when device use address"
           example: "2024-06-20T03:58:16Z"
+
+    NetworkAddressHistoryV1:
+      type: object
+      required:
+        - cid
+        - device_id
+        - history
+      properties:
+        cid:
+          type: string
+          description: "cid"
+          example: "ddae18657d0a426db6afacce64c540a6"
+        device_id:
+          type: string
+          description: "Device Id"
+          example: "d74c838dfa3e467481caa0807ba598d3"
+        history:
+          type: array
+          items:
+            $ref: "#/components/schemas/NetworkAddressV1"
+
+    NetworkAddressHistoryResponseV1:
+      type: object
+      required:
+        - errors
+        - meta
+        - resources
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: "#/components/schemas/APIError"
+        meta:
+          $ref: "#/components/schemas/MetaInfo"
+        resources:
+          type: array
+          items:
+            $ref: "#/components/schemas/NetworkAddressHistoryV1"
+
+    DevicePolicy:
+      type: object
+      required:
+        - policy_id
+        - policy_type
+      properties:
+        applied:
+          type: boolean
+        applied_date:
+          type: string
+          format: date-time
+        assigned_date:
+          type: string
+          format: date-time
+        exempt:
+          type: boolean
+        policy_id:
+          type: string
+        policy_type:
+          type: string
+        rule_groups:
+          type: array
+          items:
+            type: string
+        rule_set_id:
+          type: string
+        settings_hash:
+          type: string
+        uninstall_protection:
+          type: string
+
+    MappedDevicePolicies:
+      type: object
+      properties:
+        airlock:
+          $ref: "#/components/schemas/DevicePolicy"
+        automox:
+          $ref: "#/components/schemas/DevicePolicy"
+        aws-verified-access:
+          $ref: "#/components/schemas/DevicePolicy"
+        data-protection:
+          $ref: "#/components/schemas/DevicePolicy"
+        device_control:
+          $ref: "#/components/schemas/DevicePolicy"
+        fim:
+          $ref: "#/components/schemas/DevicePolicy"
+        firewall:
+          $ref: "#/components/schemas/DevicePolicy"
+        global_config:
+          $ref: "#/components/schemas/DevicePolicy"
+        host-retention:
+          $ref: "#/components/schemas/DevicePolicy"
+        identity-protection:
+          $ref: "#/components/schemas/DevicePolicy"
+        jumpcloud:
+          $ref: "#/components/schemas/DevicePolicy"
+        kubernetes-admission-control:
+          $ref: "#/components/schemas/DevicePolicy"
+        mobile:
+          $ref: "#/components/schemas/DevicePolicy"
+        netskope:
+          $ref: "#/components/schemas/DevicePolicy"
+        prevention:
+          $ref: "#/components/schemas/DevicePolicy"
+        remote_response:
+          $ref: "#/components/schemas/DevicePolicy"
+        sca:
+          $ref: "#/components/schemas/DevicePolicy"        
+        sensor_update:
+          $ref: "#/components/schemas/DevicePolicy"
+        system-tray:
+          $ref: "#/components/schemas/DevicePolicy"
+        vulnerability-management:
+          $ref: "#/components/schemas/DevicePolicy"
+        ztl:
+          $ref: "#/components/schemas/DevicePolicy"
+
+    DeviceManagedApp:
+      type: object
+      required:
+        - version
+      properties:
+        version:
+          type: string
+
+    DeviceManagedApps:
+      type: object
+      properties:
+        airlock:
+          $ref: "#/components/schemas/DeviceManagedApp"
+        automox:
+          $ref: "#/components/schemas/DeviceManagedApp"
+        aws-verified-access:
+          $ref: "#/components/schemas/DeviceManagedApp"
+        identity-protection:
+          $ref: "#/components/schemas/DeviceManagedApp"
+        jumpcloud:
+          $ref: "#/components/schemas/DeviceManagedApp"
+        netskope:
+          $ref: "#/components/schemas/DeviceManagedApp"
+
+    DeviceMeta:
+      type: object
+      properties:
+        version:
+          type: string
+        version_string:
+          type: string
+
+    Device:
+      type: object
+      required:
+        - cid
+        - device_id
+      properties:
+        agent_load_flags:
+          type: string
+          description: "Load flags of the installed agent."
+          example: "0"
+        agent_local_time:
+          type: string
+          description: "Local time of the installed agent."
+          example: "2024-06-19T20:57:50.924Z"
+        agent_version:
+          type: string
+          description: "Version of the installed local agent"
+          example: "7.16.18605.0"
+        base_image_version:
+          type: string
+        bios_manufacturer:
+          type: string
+          description: "Bios manufacturer"
+          example: "Debian distribution of EDK II"
+        bios_version:
+          type: string
+          description: "Bios version"
+          example: "2024.02-2"
+        build_number:
+          type: string
+          description: "The build number"
+          example: "19044"
+        chassis_type:
+          type: string
+          description: "type of chassis"
+          example: "1"
+        chassis_type_desc:
+          type: string
+          description: "description of type of chassis"
+          example: "Other"
+        cid:
+          type: string
+          description: "cid"
+          example: "ddae18657d0a426db6afacce64c540a6"
+        config_id_base:
+          type: string
+          description: "Config ID base"
+          example: "65994763"
+        config_id_build:
+          type: string
+          description: "Config ID build"
+          example: "18605"
+        config_id_platform:
+          type: string
+          description: "Config ID platform"
+          example: "3"
+        connection_ip:
+          type: string
+          description: "The IP of device connect to CrowdStrike"
+          example: "20.20.20.21"
+        connection_mac_address:
+          type: string
+          description: "The MAC address of device connect to CrowdStrike"
+          example: "02-12-6b-86-06-47"
+        cpu_signature:
+          type: string
+          description: "CPU signature"
+          example: "722594"
+        cpu_vendor:
+          type: string
+          description: "CPU vendor"
+          example: "Intel"
+        default_gateway_ip:
+          type: string
+          description: "The IP of default gateway of host"
+          example: "20.20.20.1"
+        deployment_type:
+          type: string
+        detection_suppression_status:
+          type: string
+        device_id:
+          type: string
+          description: "id of device"
+          example: "d74c838dfa3e467481caa0807ba598d3"
+        device_policies:
+          $ref: "#/components/schemas/MappedDevicePolicies"
+        email:
+          type: string
+        external_ip:
+          type: string
+          description: "External ip of host"
+          example: "59.153.226.56"
+        filesystem_containment_status:
+          type: string
+        first_login_timestamp:
+          type: string
+        first_seen:
+          type: string
+          description: "Time when the host first seen"
+          example: "2024-06-20T03:55:35Z"
+        group_hash:
+          type: string
+        groups:
+          type: array
+          items:
+            type: string
+        host_hidden_status:
+          type: string
+        host_utc_offset:
+          type: string
+        hostname:
+          type: string
+          description: "System hostname"
+          example: "DOCKERW-46U3D23"
+        instance_id:
+          type: string
+        internet_exposure:
+          type: string
+        k8s_cluster_git_version:
+          type: string
+        k8s_cluster_id:
+          type: string
+        k8s_cluster_version:
+          type: string
+        kernel_version:
+          type: string
+          description: "Version of kernel"
+          example: "10.0.19044.3324"
+        last_login_timestamp:
+          type: string
+          description: "Time when the last login to this host was detected."
+          example: "2024-06-20T03:58:22Z"
+        last_login_uid:
+          type: string
+        last_login_user:
+          type: string
+          description: "Last login user"
+          example: "Docker"
+        last_login_user_sid:
+          type: string
+          description: "Last login user id"
+          example: "S-1-5-21-3703490446-812443016-252029387-1000"
+        last_reboot:
+          type: string
+          description: "Last time reboot the host"
+          example: "2024-06-20T10:53:13Z"
+        last_seen:
+          type: string
+          description: "Time when host last seen"
+          example: "2024-06-20T04:21:10Z"
+        linux_sensor_mode:
+          type: string
+        local_ip:
+          type: string
+          description: "Local IP of host"
+          example: "20.20.20.21"
+        mac_address:
+          type: string
+          description: "MAC address of host"
+          example: "02-12-6b-86-06-47"
+        machine_domain:
+          type: string
+        major_version:
+          type: string
+          description: "Major version"
+          example: "10"
+        managed_apps:
+          $ref: "#/components/schemas/DeviceManagedApps"
+        meta:
+          $ref: "#/components/schemas/DeviceMeta"
+        migration_completed_time:
+          type: string
+        minor_version:
+          type: string
+          description: "Minor version"
+          example: "0"
+        modified_timestamp:
+          type: string
+        notes:
+          type: array
+          items:
+            type: string
+        os_build:
+          type: string
+          description: "Os build"
+          example: "19044"
+        os_product_name:
+          type: string
+          description: "Name of OS of product"
+          example: "Windows 10 Enterprise LTSC 2021"
+        os_version:
+          type: string
+          description: "Os Version"
+          example: "Windows 10"
+        ou:
+          type: array
+          items:
+            type: string
+        platform_id:
+          type: string
+          description: "ID of platform in Falcon"
+          example: "0"
+        platform_name:
+          type: string
+          description: "Name of platform in Falcon"
+          example: "Windows"
+        pod_annotations:
+          type: array
+          items:
+            type: string
+        pod_host_ip4:
+          type: string
+        pod_host_ip6:
+          type: string
+        pod_hostname:
+          type: string
+        pod_id:
+          type: string
+        pod_ip4:
+          type: string
+        pod_ip6:
+          type: string
+        pod_labels:
+          type: array
+          items:
+            type: string
+        pod_name:
+          type: string
+        pod_namespace:
+          type: string
+        pod_service_account_name:
+          type: string
+        pointer_size:
+          type: string
+        policies:
+          type: array
+          items:
+            $ref: "#/components/schemas/DevicePolicy"
+        product_type:
+          type: string
+          description: "Type of hardware"
+          example: "1"
+        product_type_desc:
+          type: string
+          description: "Description of type of hardware"
+          example: "Windows 10"
+        provision_status:
+          type: string
+          description: "Provisioning status"
+          example: "Provisioned"
+        reduced_functionality_mode:
+          type: string
+        release_group:
+          type: string
+        rtr_state:
+          type: string
+        serial_number:
+          type: string
+        service_pack_major:
+          type: string
+        service_pack_minor:
+          type: string
+        service_provider:
+          type: string
+        service_provider_account_id:
+          type: string
+        site_name:
+          type: string
+        status:
+          type: string
+          description: "Operating status"
+          example: "normal"
+        system_manufacturer:
+          type: string
+          description: "Name of manufacturer"
+          example: "QEMU"
+        system_product_name:
+          type: string
+          description: "Name of product"
+          example: "Standard PC (Q35 + ICH9, 2009)"
+        tags:
+          type: array
+          items:
+            type: string
+        zone_group:
+          type: string
+    
+    DeviceDetailsResponse:
+      type: object
+      required:
+        - errors
+        - meta
+        - resources
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: "#/components/schemas/APIError"
+        meta:
+          $ref: "#/components/schemas/MetaInfo"
+        resources:
+          type: array
+          items:
+            $ref: "#/components/schemas/Device"
+
+    QueryResponse:
+      type: object
+      required:
+        - errors
+        - meta
+        - resources
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: "#/components/schemas/APIError"
+        meta:
+          $ref: "#/components/schemas/MetaInfo"
+        resources:
+          type: array
+          items:
+            type: string
+
+    DeviceCountV1:
+      type: object
+      properties:
+        device_count:
+          type: integer
+          format: int32
+        limit_exceeded:
+          type: boolean
+        type:
+          type: string
+        value:
+          type: string
+
+    DeviceCountRespV1:
+      type: object
+      required:
+        - errors
+        - resources
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: "#/components/schemas/APIError"
+        resources:
+          type: array
+          items: 
+            $ref: "#/components/schemas/DeviceCountV1"
+
+    IndicatorsQueryMeta:
+      type: object
+      required:
+        - query_time
+        - trace_id
+      properties:
+        pagination:
+          $ref: "#/components/schemas/IndicatorsQueryPaging"
+        powered_by:
+          type: string
+        query_time:
+          type: number
+          format: double
+        trace_id:
+          type: string
+
+    IndicatorsQueryPaging:
+      type: object
+      required:
+        - limit
+        - total
+      properties:
+        after:
+          type: string
+        limit:
+          type: integer
+          format: int32
+        offset:
+          type: integer
+          format: int32
+        total:
+          type: integer
+          format: int32
+
+    MetadataV1:
+      type: object
+      properties:
+        av_hits:
+          type: integer
+          format: int64
+        company_name:
+          type: string
+        file_description:
+          type: string
+        file_version:
+          type: string
+        filename:
+          type: string
+        original_filename:
+          type: string
+        product_name:
+          type: string
+        product_version:
+          type: string
+        signed:
+          type: boolean
+
+    IndicatorV1:
+      type: object
+      properties:
+        action:
+          type: string
+          description: "action associated with the indicator"
+          example: "detect"
+        applied_globally:
+          type: boolean
+          description: "whether an indicator is applied across all hosts globally within the organization."
+          example: false
+        created_by:
+          type: string
+          description: "when the indicator was created"
+          example: "someone@email.com"
+        created_on:
+          type: string
+          format: date-time
+          description: "when the indicator was created"
+          example: "2024-05-31T07:31:09.065351403Z"
+        deleted:
+          type: boolean
+          description: "ioc deleted or not"
+          example: false
+        description:
+          type: string
+        expiration:
+          type: string
+          format: date-time
+        expired:
+          type: boolean
+          description: "ioc expired or not"
+          example: false
+        from_parent:
+          type: boolean
+          description: "whether the indicator was inherited from a parent object."
+          example: false
+        host_groups:
+          type: array
+          items:
+            type: string
+        id:
+          type: string
+          description: "id of indicator"
+          example: "e292d93dce877c296e54a5fc103208727faaf5171cd6ed7039776e63ec55fbee"
+        metadata:
+          $ref: "#/components/schemas/MetadataV1"
+        mobile_action:
+          type: string
+        modified_by:
+          type: string
+          description: "who modify the indicator"
+          example: "someone@email.com"
+        modified_on:
+          type: string
+          format: date-time
+          description: "the last time when the indicator was modified"
+          example: "2024-05-31T07:31:09.065351403Z"
+        parent_cid_name:
+          type: string
+        platforms:
+          type: array
+          items:
+            type: string
+            description: "platform associated with indicator"
+            example: "windows"
+        severity:
+          type: string
+          description: "severity of indicator"
+          example: "informational"
+        source:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        type:
+          type: string
+          description: "type of indicator"
+          example: "sha256"
+        value:
+          type: string
+          description: "value of indicator"
+          example: "d8a928b2043db77e340b523547bf16cb4aa483f0645fe0a290ed1f20aab76257"
+
+    IndicatorRespV1:
+      type: object
+      required:
+        - errors
+        - meta
+        - resources
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: "#/components/schemas/APIError"
+        meta:
+          $ref: "#/components/schemas/IndicatorsQueryMeta"
+        resources:
+          type: array
+          items:
+            $ref: "#/components/schemas/IndicatorV1"
+
+    IndicatorQueryRespV1:
+      type: object
+      required:
+        - errors
+        - meta
+        - resources
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: "#/components/schemas/APIError"
+        meta:
+          $ref: "#/components/schemas/IndicatorsQueryMeta"
+        resources:
+          type: array
+          items:
+            type: string
+
+    EnvironmentScore:
+      type: object
+      required:
+        - adjusted_score
+        - cid
+        - score
+        - timestamp
+      properties:
+        adjusted_score:
+          type: integer
+          format: int32
+        cid:
+          type: string
+        id:
+          type: string
+        score:
+          type: integer
+          format: int32
+        timestamp:
+          type: string
+          format: date-time
+
+    EnvironmentScoreResponse:
+      type: object
+      required:
+        - errors
+        - meta
+        - resources
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: "#/components/schemas/APIError"
+        meta:
+          $ref: "#/components/schemas/MetaInfo"
+        resources:
+          type: array
+          items:
+            $ref: "#/components/schemas/EnvironmentScore"
+
+    PatternDisposition:
+      type: object
+      required:
+        - blocking_unsupported_or_disabled
+        - bootup_safeguard_enabled
+        - critical_process_disabled
+        - detect
+        - fs_operation_blocked
+        - handle_operation_downgraded
+        - inddet_mask
+        - indicator
+        - kill_action_failed
+        - kill_parent
+        - kill_process
+        - kill_subprocess
+        - operation_blocked
+        - policy_disabled
+        - process_blocked
+        - quarantine_file
+        - quarantine_machine
+        - registry_operation_blocked
+        - rooting
+        - sensor_only
+        - suspend_parent
+        - suspend_process
+      properties:
+        blocking_unsupported_or_disabled:
+          type: boolean
+        bootup_safeguard_enabled:
+          type: boolean
+        critical_process_disabled:
+          type: boolean
+        detect:
+          type: boolean
+        fs_operation_blocked:
+          type: boolean
+        handle_operation_downgraded:
+          type: boolean
+        inddet_mask:
+          type: boolean
+        indicator:
+          type: boolean
+        kill_action_failed:
+          type: boolean
+        kill_parent:
+          type: boolean
+        kill_process:
+          type: boolean
+        kill_subprocess:
+          type: boolean
+        operation_blocked:
+          type: boolean
+        policy_disabled:
+          type: boolean
+        process_blocked:
+          type: boolean
+        quarantine_file:
+          type: boolean
+        quarantine_machine:
+          type: boolean
+        registry_operation_blocked:
+          type: boolean
+        rooting:
+          type: boolean
+        sensor_only:
+          type: boolean
+        suspend_parent:
+          type: boolean
+        suspend_process:
+          type: boolean
+
+    Behavior:
+      type: object
+      required:
+        - pattern_id
+        - template_instance_id
+        - timestamp
+      properties:
+        aid:
+          type: string
+          description: "asset/host associated with the behavior id"
+          example: "87de808d894b4074ab946f3584908f24"
+        alert_ids:
+          type: array
+          description: "list of alert ids"
+          items:
+            type: string
+            description: "alert id"
+            example: "ddae18657d0a426db6afacce64c540a6:ind:87de808d894b4074ab946f3584908f24:2701887744-10303-2327056"
+        behavior_id:
+          type: string
+          description: "behavior id"
+          example: "ind:87de808d894b4074ab946f3584908f24:2701887744-10303-2327056"
+        cid:
+          type: string
+          description: "cid"
+          example: "ddae18657d0a426db6afacce64c540a6"
+        cmdline:
+          type: string
+          description: "the command associated with the behavior"
+          example: "cmd  crowdstrike_test_critical"
+        compound_tto:
+          type: string
+        detection_ids:
+          type: array
+          items:
+            type: string
+        display_name:
+          type: string
+          description: "the displayname of the behavior"
+          example: "TestTriggerCritical"
+        domain:
+          type: string
+          description: "domain associated with the behavior"
+          example: "EC2AMAZ-HHANJ5O"
+        exclusion_type:
+          type: string
+        filepath:
+          type: string
+          description: "location of the file associated with the behavior"
+          example: "\\Device\\HarddiskVolume1\\Windows\\System32\\cmd.exe"
+        grouping_ids:
+          type: array
+          items:
+            type: string
+        incident_id:
+          type: string
+        incident_ids:
+          type: array
+          items:
+            type: string
+        ioc_source:
+          type: string
+        ioc_type:
+          type: string
+        ioc_value:
+          type: string
+        objective:
+          type: string
+          description: "the objective of the observed activity"
+          example: "Falcon Detection Method"
+        pattern_disposition:
+          type: integer
+          format: int32
+        pattern_disposition_details:
+          $ref: "#/components/schemas/PatternDisposition"
+        pattern_id:
+          type: integer
+          format: int32
+          description: "id behavior patterns detected by system"
+          example: 10303
+        sha256:
+          type: string
+          description: "sha256 hash value of file involved the behavior"
+          example: "06dffb939b896831bd91b96b34c7a75466581f75ec074fdd488554f23b3c2dc0"
+        tactic:
+          type: string
+          description: "the tactic associated with the behavior"
+          example: "Falcon Overwatch"
+        tactic_id:
+          type: string
+          description: "the id of tactic associated with the behavior"
+          example: "CSTA0006"
+        technique:
+          type: string
+          description: "the technique associated with the behavior"
+          example: "Malicious Activity"
+        technique_id:
+          type: string
+          description: "the technique associated with the behavior"
+          example: "CST0002"
+        template_instance_id:
+          type: integer
+          format: int32
+          description: "id behavior template instance in the CrowdStrike system"
+          example: 1343
+        timestamp:
+          type: string
+          format: date-time
+          description: "when the behavior occur"
+          example: "2024-05-26T23:51:04.923Z"
         user_name:
           type: string
-          description: "Username"
-          example: "Docker"
+          description: "username of user involved the behavior"
+          example: "Admin"
+
+    MsaExternalBehaviorResponse:
+      type: object
+      required:
+        - errors
+        - meta
+        - resources
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: "#/components/schemas/APIError"
+        meta:
+          $ref: "#/components/schemas/MetaInfo"
+        resources:
+          type: array
+          items:
+            $ref: "#/components/schemas/Behavior"
+
+    EventHistogram:
+      type: object
+      required:
+        - count
+        - has_detect
+        - has_overwatch
+        - has_prevented
+        - timestamp_max
+        - timestamp_min
+      properties:
+        count:
+          type: integer
+          format: int32
+        has_detect:
+          type: boolean
+        has_overwatch:
+          type: boolean
+        has_prevented:
+          type: boolean
+        timestamp_max:
+          type: integer
+          format: int64
+        timestamp_min:
+          type: integer
+          format: int64
+
+    Incident:
+      type: object
+      required:
+        - cid
+        - created
+        - end
+        - fine_score
+        - host_ids
+        - incident_id
+        - start
+        - state
+      properties:
+        assigned_to:
+          type: string
+        assigned_to_name:
+          type: string
+        cid:
+          type: string
+        created:
+          type: string
+          format: date-time
+        description:
+          type: string
+        email_state:
+          type: string
+        end:
+          type: string
+          format: date-time
+        events_histogram:
+          type: array
+          items:
+            $ref: "#/components/schemas/EventHistogram"
+        fine_score:
+          type: integer
+          format: int32
+        grouping_ids:
+          type: array
+          items:
+            type: string
+        host_ids:
+          type: array
+          items:
+            type: string
+        hosts:
+          type: array
+          items:
+            $ref: "#/components/schemas/DeviceDetailIndexed"
+        incident_id:
+          type: string
+        incident_type:
+          type: integer
+          format: int32
+        lm_host_ids:
+          type: array
+          items:
+            type: string
+        lm_hosts_capped:
+          type: boolean
+        lm_types:
+          type: integer
+          format: int32
+        lmra_host_ids:
+          type: array
+          items:
+            type: string
+        lmra_hosts_capped:
+          type: boolean
+        modified_timestamp:
+          type: string
+          format: date-time
+        name:
+          type: string
+        objectives:
+          type: array
+          items:
+            type: string
+        start:
+          type: string
+          format: date-time
+        state:
+          type: string
+        status:
+          type: integer
+          format: int32
+        tactics:
+          type: array
+          items:
+            type: string
+        tags:
+          type: array
+          items:
+            type: string
+        techniques:
+          type: array
+          items:
+            type: string
+        users:
+          type: array
+          items:
+            type: string
+
+    DeviceDetailIndexed:
+      type: object
+      required:
+        - cid
+        - device_id
+      properties:
+        agent_load_flags:
+          type: string
+        agent_local_time:
+          type: string
+        agent_version:
+          type: string
+        bios_manufacturer:
+          type: string
+        bios_version:
+          type: string
+        cid:
+          type: string
+        config_id_base:
+          type: string
+        config_id_build:
+          type: string
+        config_id_platform:
+          type: string
+        device_id:
+          type: string
+        external_ip:
+          type: string
+        first_login_timestamp:
+          type: string
+        first_login_user:
+          type: string
+        first_seen:
+          type: string
+        groups:
+          type: array
+          items:
+            type: string
+        hostname:
+          type: string
+        instance_id:
+          type: string
+        last_login_timestamp:
+          type: string
+        last_login_user:
+          type: string
+        last_seen:
+          type: string
+        local_ip:
+          type: string
+        mac_address:
+          type: string
+        machine_domain:
+          type: string
+        major_version:
+          type: string
+        minor_version:
+          type: string
+        modified_timestamp:
+          type: string
+        notes:
+          type: array
+          items:
+            type: string
+        os_version:
+          type: string
+        ou:
+          type: array
+          items:
+            type: string
+        platform_id:
+          type: string
+        platform_name:
+          type: string
+        pod_id:
+          type: string
+        pod_labels:
+          type: array
+          items:
+            type: string
+        pod_name:
+          type: string
+        pod_namespace:
+          type: string
+        pod_service_account_name:
+          type: string
+        product_type:
+          type: string
+        product_type_desc:
+          type: string
+        release_group:
+          type: string
+        service_provider:
+          type: string
+        service_provider_account_id:
+          type: string
+        site_name:
+          type: string
+        status:
+          type: string
+        system_manufacturer:
+          type: string
+        system_product_name:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+
+    MsaExternalIncidentResponse:
+      type: object
+      required:
+        - errors
+        - meta
+        - resources
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: "#/components/schemas/APIError"
+        meta:
+          $ref: "#/components/schemas/MetaInfo"
+        resources:
+          type: array
+          items:
+            $ref: "#/components/schemas/Incident"
+
+    MsaIncidentQueryResponse:
+      type: object
+      required:
+        - errors
+        - meta
+        - resources
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: "#/components/schemas/APIError"
+        meta:
+          $ref: "#/components/schemas/MetaInfo"
+        resources:
+          type: array
+          items:
+            type: object
