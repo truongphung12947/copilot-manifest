@@ -1,0 +1,26 @@
+Descriptor:
+  Name: CrowdStrike Falcon
+  DisplayName: CrowdStrike Falcon
+  DescriptionDisplay: Get access to CrowdStrike Falcon to query alerts, incidents, iocs and hosts
+  Description: |-
+    Use this skillset to call CrowdStrike Falcon APIs to perform actions across CrowdStrike Falcon platform.
+    - Some query require Falcon Query Language
+    - This skill only invokes the CrowdStrike Falcon APIs.
+    - Query alerts information
+    - Query hosts information
+    - Query IoCs information
+    - Query incidents information
+  SupportedAuthTypes:
+    - OAuthClientCredentialsFlow
+  Authorization:
+    Type: OAuthClientCredentialsFlow
+    ClientId: f8873a6da30f43e6aa5942d973e73d69
+    ClientSecret: c5aCOKY2ui10XoRzG9WjsJPUeNFHMT48d76L3mfh
+    TokenEndpoint: https://api.us-2.crowdstrike.com/oauth2/token
+    Scopes: apps:read,apps:write,aspm-admin:read,aspm-admin:write,aspm-falcon-admin:write,aspm-user:read,aspm-user:write,aspm-viewer:read,cspm-registration:read,cspm-remediation:write,cspm-sensormgmt:write,custom-storage:read,custom-storage:write,devices:read,devices:write,falcon-container-cli:write,fim:read,iac:read,iac:write,identity-automation:read,identity-automation:write,identity-detections:read,identity-enforcement:read,identity-enforcement:write,identity-health:read,identity-mfa-tool:write,kubernetes-protection-agent:write,mssp:read,provisioning:read,provisioning:write,real-time-response-app:write,recon-monitoring-rules:read,recon-monitoring-rules:write,sensor-installers:read,snapshot:write,usage-api:read,usermgmt:read,usermgmt:write,zero-trust-assessment:read
+    AuthorizationContentType: application/x-www-form-urlencoded
+
+SkillGroups:
+  - Format: API
+    Settings:
+      OpenApiSpecUrl: https://dev.azure.com/fsoft-sas/AlertIQ/_apis/git/repositories/alertiq-copilot-integration/Items?path=/copilot-api-spec.yaml&recursionLevel=0&versionDescriptor.version=dev&versionDescriptor.versionOptions=0&versionDescriptor.versionType=0&includeContent=true&resolveLfs=true
