@@ -1,0 +1,90 @@
+openapi: 3.0.0
+
+info:
+  title: PagerDuty
+  description: PagerDuty
+  version: "1.0"
+
+servers:
+  - url: https://api.pagerduty.com
+
+paths:
+  /incidents:
+    get:
+      description: This will search all incidents across all PagerDuty
+      summary: Search incidents by filter
+      operationId: searchIncidents
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/IncidentFilter"
+      responses:
+        "200":
+          description: searchIncidents
+          content:
+            application/json:
+              schema:
+                type: object
+
+components:
+  schemas:
+    IncidentFilter:
+      type: object
+      properties:
+        limit:
+          description: The number of results per page. Maximum of 100.
+          type: integer
+        offset:
+          description: Offset to start pagination search results.
+          type: integer
+        total:
+          description: By default the total field in pagination responses is set to null to provide the fastest possible response times. Set total to true for this field to be populated.
+          type: boolean
+          default: false
+        date_range:
+          description: When set to all, the since and until parameters and defaults are ignored.
+          type: string
+        incident_key:
+          description: Incident de-duplication key. Incidents with child alerts do not have an incident key; querying by incident key will return incidents whose alerts have alert_key matching the given incident key.
+          type: string
+        include:
+          description: Array of additional details to include.
+          type: array
+          items:
+            type: string
+        service_ids:
+          description: Returns only the incidents associated with the passed service(s). This expects one or more service IDs.  
+          type: array
+          items:
+            type: string
+        since:
+          description: The start of the date range over which you want to search. Maximum range is 6 months and default is 1 month.
+          type: string
+        sort_by:
+          description: Used to specify both the field you wish to sort the results on (incident_number/created_at/resolved_at/urgency), as well as the direction (asc/desc) of the results. The sort_by field and direction should be separated by a colon. A maximum of two fields can be included, separated by a comma. Sort direction defaults to ascending. The account must have the urgencies ability to sort by the urgency.
+          type: array
+          items:
+            type: string
+        statuses:
+          description: "Return only incidents with the given statuses. To query multiple statuses, pass statuses[] more than once, for example: https://api.pagerduty.com/incidents?statuses[]=triggered&statuses[]=acknowledged"
+          type: array
+          items:
+            type: string
+        team_ids:
+          description: An array of team IDs. Only results related to these teams will be returned. Account must have the teams ability to use this parameter.
+          type: array
+          items:
+            type: string
+        until:
+          description: The end of the date range over which you want to search. Maximum range is 6 months and default is 1 month.
+          type: string
+        urgencies:
+          description: Array of the urgencies of the incidents to be returned. Defaults to all urgencies. Account must have the urgencies ability to do this.
+          type: string
+        user_ids:
+          description: "Returns only the incidents currently assigned to the passed user(s). This expects one or more user IDs. Note: When using the assigned_to_user filter, you will only receive incidents with statuses of triggered or acknowledged. This is because resolved incidents are not assigned to any user."
+          type: array
+          items:
+            type: string
