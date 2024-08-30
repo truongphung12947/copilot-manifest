@@ -1,0 +1,1808 @@
+openapi: 3.0.0
+
+info:
+  title: Paloalto Cortex XSOAR
+  description: Paloalto Cortex XSOAR
+  version: "1.0"
+
+paths:
+  /incidents/search:
+    post:
+      description: |
+        This will search incidents across all indices.
+        You can filter by multiple options.
+      summary: Search incidents by filter
+      operationId: searchIncidents
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SearchIncidentsData"
+      responses:
+        '200':
+          description: incidentSearchResponse
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Incident"
+                  total:
+                    type: integer
+      
+  /investigations/search:
+    post:    
+      description: |
+        This will search investigations across all indices.
+        You can filter by multiple options.
+      summary: Search investigations by filter
+      operationId: searchInvestigations
+      parameters:
+        - in: query
+          name: filter
+          schema:
+            $ref: "#/components/schemas/InvestigationFilter"
+      responses:
+        "200":
+          description: investigationSearchResponse
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvestigationSearchResponse"
+  
+  /indicators/search:
+    post:
+      description: Search indicators by filter
+      summary: Search indicators
+      operationId: indicatorsSearch
+      parameters:
+        - in: query
+          name: IndicatorFilter
+          schema:
+            $ref: "#/components/schemas/IndicatorFilter"
+      responses:
+        "200":
+          description: indicatorResult
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IndicatorResult"
+
+components:
+  schemas:
+    IncidentFilter:
+      type: object
+      title: IncidentFilter allows for very simple filtering.
+      properties:
+        Cache:
+          description: Cache of join functions
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+        accounts:
+          type: object
+          additionalProperties:
+            type: object
+          x-go-name: Accounts
+        andOp:
+          type: boolean
+          x-go-name: AndOp
+        category:
+          type: array
+          items:
+            type: string
+          x-go-name: Category
+        details:
+          type: string
+          x-go-name: Details
+        fields:
+          type: array
+          items:
+            type: string
+          x-go-name: Fields
+        files:
+          type: array
+          items:
+            type: string
+          x-go-name: Files
+        filterobjectquery:
+          type: string
+          x-go-name: FilterObjectQuery
+        fromActivatedDate:
+          type: string
+          format: date-time
+          x-go-name: FromActivatedDate
+        fromClosedDate:
+          type: string
+          format: date-time
+          x-go-name: FromClosedDate
+        fromDate:
+          type: string
+          format: date-time
+          x-go-name: FromDate
+        fromDateLicense:
+          type: string
+          format: date-time
+          x-go-name: FromDateLicenseVal
+        fromDueDate:
+          type: string
+          format: date-time
+          x-go-name: FromDueDate
+        fromReminder:
+          type: string
+          format: date-time
+          x-go-name: FromReminder
+        id:
+          type: array
+          items:
+            type: string
+          x-go-name: ID
+        ignoreWorkers:
+          description: Do not use workers mechanism while searching bleve
+          type: boolean
+          x-go-name: IgnoreWorkers
+        includeTmp:
+          type: boolean
+          x-go-name: IncludeTmp
+        investigation:
+          type: array
+          items:
+            type: string
+          x-go-name: Investigation
+        level:
+          type: array
+          items:
+            $ref: '#/definitions/Severity'
+          x-go-name: Level
+        name:
+          type: array
+          items:
+            type: string
+          x-go-name: Name
+        notCategory:
+          type: array
+          items:
+            type: string
+          x-go-name: NotCategory
+        notInvestigation:
+          type: array
+          items:
+            type: string
+          x-go-name: NotInvestigation
+        notStatus:
+          type: array
+          items:
+            $ref: '#/definitions/IncidentStatus'
+          x-go-name: NotStatus
+        page:
+          description: 0-based page
+          type: integer
+          format: int64
+          x-go-name: Page
+        parent:
+          type: array
+          items:
+            type: string
+          x-go-name: Parent
+        period:
+          $ref: '#/definitions/Period'
+        query:
+          type: string
+          x-go-name: Query
+        reason:
+          type: array
+          items:
+            type: string
+          x-go-name: Reason
+        searchAfter:
+          description: Efficient next page, pass max sort value from previous page
+          type: array
+          items:
+            type: string
+          x-go-name: SearchAfter
+        searchAfterElastic:
+          description: Efficient next page, pass max ES sort value from previous page
+          type: array
+          items:
+            type: string
+          x-go-name: SearchAfterElastic
+        searchAfterMap:
+          description: |
+            Map accounts search after values - stores next page sort values per account.
+            There is no need to store searchBeforeMap as [current page searchBefore] equals to [prev page searchAfter].
+            More, there is no way to generate correct searchBefore from current page as some tenants may not appear at all.
+            The map is relevant in proxy mode and used by tenants, each tenant extracts the searchAfter keys from the map.
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+          x-go-name: SearchAfterMap
+        searchAfterMapOrder:
+          type: object
+          additionalProperties:
+            type: integer
+            format: int64
+          x-go-name: SearchAfterMapOrder
+        searchBefore:
+          description: Efficient prev page, pass min sort value from next page
+          type: array
+          items:
+            type: string
+          x-go-name: SearchBefore
+        searchBeforeElastic:
+          description: Efficient prev page, pass min ES sort value from next page
+          type: array
+          items:
+            type: string
+          x-go-name: SearchBeforeElastic
+        size:
+          description: Size is limited to 1000, if not passed it defaults to 0, and no results will return
+          type: integer
+          format: int64
+          x-go-name: Size
+        sort:
+          description: The sort order
+          type: array
+          items:
+            $ref: '#/definitions/Order'
+          x-go-name: Sort
+        status:
+          type: array
+          items:
+            $ref: '#/definitions/IncidentStatus'
+          x-go-name: Status
+        systems:
+          type: array
+          items:
+            type: string
+          x-go-name: Systems
+        timeFrame:
+          $ref: '#/definitions/Duration'
+        toActivatedDate:
+          type: string
+          format: date-time
+          x-go-name: ToActivatedDate
+        toClosedDate:
+          type: string
+          format: date-time
+          x-go-name: ToClosedDate
+        toDate:
+          type: string
+          format: date-time
+          x-go-name: ToDate
+        toDueDate:
+          type: string
+          format: date-time
+          x-go-name: ToDueDate
+        toReminder:
+          type: string
+          format: date-time
+          x-go-name: ToReminder
+        totalOnly:
+          type: boolean
+          x-go-name: TotalOnly
+        trim_events:
+          type: integer
+          format: int64
+          x-go-name: TrimEvents
+        type:
+          type: array
+          items:
+            type: string
+          x-go-name: Type
+        urls:
+          type: array
+          items:
+            type: string
+          x-go-name: Urls
+        users:
+          type: array
+          items:
+            type: string
+          x-go-name: Users
+      x-go-package: github.com/demisto/server/repo/entities
+
+    SearchIncidentsData:
+      type: object
+      properties:
+        filter:
+          $ref: "#/components/schemas/IncidentFilter"
+        userFilter:
+          type: boolean
+          x-go-name: FilterByUser
+
+    InvestigationFilter:
+      type: object
+      title: InvestigationFilter allows for very simple filtering.
+      properties:
+        Cache:
+          description: Cache of join functions
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+        andOp:
+          type: boolean
+          x-go-name: AndOp
+        category:
+          type: array
+          items:
+            type: string
+          x-go-name: Category
+        fromCloseDate:
+          type: string
+          format: date-time
+          x-go-name: FromCloseDate
+        fromDate:
+          type: string
+          format: date-time
+          x-go-name: FromDate
+        fromDateLicense:
+          type: string
+          format: date-time
+          x-go-name: FromDateLicenseVal
+        id:
+          type: array
+          items:
+            type: string
+          x-go-name: ID
+        idsOnly:
+          type: boolean
+          x-go-name: IdsOnly
+        ignoreWorkers:
+          description: Do not use workers mechanism while searching bleve
+          type: boolean
+          x-go-name: IgnoreWorkers
+        includeChildInv:
+          type: boolean
+          x-go-name: IncludeChildInv
+        name:
+          type: array
+          items:
+            type: string
+          x-go-name: Name
+        notCategory:
+          type: array
+          items:
+            type: string
+          x-go-name: NotCategory
+        notIDs:
+          type: array
+          items:
+            type: string
+          x-go-name: NotIDs
+        page:
+          description: 0-based page
+          type: integer
+          format: int64
+          x-go-name: Page
+        period:
+          $ref: "#/definitions/Period"
+        reason:
+          type: array
+          items:
+            type: string
+          x-go-name: Reason
+        searchAfter:
+          description: Efficient next page, pass max sort value from previous page
+          type: array
+          items:
+            type: string
+          x-go-name: SearchAfter
+        searchAfterElastic:
+          description: Efficient next page, pass max ES sort value from previous page
+          type: array
+          items:
+            type: string
+          x-go-name: SearchAfterElastic
+        searchAfterMap:
+          description: |
+            Map accounts search after values - stores next page sort values per account.
+            There is no need to store searchBeforeMap as [current page searchBefore] equals to [prev page searchAfter]
+            More, there is no way to generate correct searchBefore from current page as some tenants may not appear at all.
+            The map is relevant in proxy mode and used by tenants, each tenant extracts the searchAfter keys from the map.
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+          x-go-name: SearchAfterMap
+        searchAfterMapOrder:
+          type: object
+          additionalProperties:
+            type: integer
+            format: int64
+          x-go-name: SearchAfterMapOrder
+        searchBefore:
+          description: Efficient prev page, pass min sort value from next page
+          type: array
+          items:
+            type: string
+          x-go-name: SearchBefore
+        searchBeforeElastic:
+          description: Efficient prev page, pass min ES sort value from next page
+          type: array
+          items:
+            type: string
+          x-go-name: SearchBeforeElastic
+        size:
+          description: Size is limited to 1000, if not passed it defaults to 0, and no results will return
+          type: integer
+          format: int64
+          x-go-name: Size
+        sort:
+          description: The sort order
+          type: array
+          items:
+            $ref: "#/definitions/Order"
+          x-go-name: Sort
+        status:
+          type: array
+          items:
+            $ref: "#/definitions/InvestigationStatus"
+          x-go-name: Status
+        timeFrame:
+          $ref: "#/definitions/Duration"
+        toCloseDate:
+          type: string
+          format: date-time
+          x-go-name: ToCloseDate
+        toDate:
+          type: string
+          format: date-time
+          x-go-name: ToDate
+        type:
+          type: array
+          items:
+            $ref: "#/definitions/InvestigationType"
+          x-go-name: Type
+        user:
+          type: array
+          items:
+            type: string
+          x-go-name: User
+      x-go-package: github.com/demisto/server/repo/entities
+
+    Investigation:
+      description: "A special investigation called playground is created for each user-project combination and is a private space for the researcher to play in."
+      type: object
+      title: "Investigation contains the investigation of a particular incident."
+      properties:
+        ShardID:
+          type: integer
+          format: int64
+        allRead:
+          type: boolean
+          x-go-name: IsAllRead
+        allReadWrite:
+          type: boolean
+          x-go-name: IsAllReadWrite
+        cacheVersn:
+          type: integer
+          format: int64
+          x-go-name: CacheVersn
+        category:
+          description: "Category of the investigation"
+          type: string
+          x-go-name: Category
+        childInvestigations:
+          description: "ChildInvestigations id's"
+          type: array
+          items:
+            type: string
+          x-go-name: ChildInvestigations
+        closed:
+          description: "When was this closed"
+          type: string
+          format: date-time
+          x-go-name: Closed
+        closingUserId:
+          description: "The user ID that closed this investigation"
+          type: string
+          x-go-name: ClosingUserID
+        created:
+          type: string
+          format: date-time
+          x-go-name: Created
+        creatingUserId:
+          description: "The user ID that created this investigation"
+          type: string
+          x-go-name: CreatingUserID
+        dbotCreatedBy:
+          description: "Who has created this event - relevant only for manual incidents"
+          type: string
+          x-go-name: CreatedBy
+        details:
+          description: "User defined free text details"
+          type: string
+          x-go-name: Details
+        entitlements:
+          description: "One time entitlements"
+          type: array
+          items:
+            type: string
+          x-go-name: Entitlements
+        entryUsers:
+          description: "EntryUsers"
+          type: array
+          items:
+            type: string
+          x-go-name: EntryUsers
+        hasRole:
+          description: "Internal field to make queries on role faster"
+          type: boolean
+          x-go-name: HasRole
+        highPriority:
+          description: "HighPriority - tasks of this investigation should run in high priority"
+          type: boolean
+          x-go-name: HighPriority
+        highlight:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+          x-go-name: Highlight
+        id:
+          type: string
+          x-go-name: ID
+        indexName:
+          type: string
+          x-go-name: IndexName
+        isChildInvestigation:
+          description: "IsChildInvestigation"
+          type: boolean
+          x-go-name: IsChildInvestigation
+        isDebug:
+          description: "IsDebug ..."
+          type: boolean
+          x-go-name: IsDebug
+        lastOpen:
+          type: string
+          format: date-time
+          x-go-name: LastOpen
+        mirrorAutoClose:
+          description: "MirrorAutoClose will tell us to close the Chat Module channel if we close investigation"
+          type: object
+          additionalProperties:
+            type: boolean
+          x-go-name: MirrorAutoClose
+        mirrorTypes:
+          description: "MirrorTypes holds info about mirror direction and message type to be mirrored\nmessage type can be either 'all' or 'chat'\ndirection can be either 'FromDemisto', 'ToDemisto' or 'Both' if this investigation is mirrored"
+          type: object
+          additionalProperties:
+            type: string
+          x-go-name: MirrorTypes
+        modified:
+          type: string
+          format: date-time
+          x-go-name: Modified
+        name:
+          description: "The name of the investigation, which is unique to the project"
+          type: string
+          x-go-name: Name
+        numericId:
+          type: integer
+          format: int64
+          x-go-name: NumericID
+        openDuration:
+          description: "Duration from open to close time"
+          type: integer
+          format: int64
+          x-go-name: OpenDuration
+        parentInvestigation:
+          description: "ParentInvestigation - parent id, in case this is a child investigation of another investigation"
+          type: string
+          x-go-name: ParentInvestigation
+        persistentEntitlements:
+          description: "Persistent entitlement per tag. Empty tag will also return an entitlement"
+          type: object
+          additionalProperties:
+            type: string
+          x-go-name: PersistentEntitlements
+        previousAllRead:
+          type: boolean
+          x-go-name: PreviousAllRead
+        previousAllReadWrite:
+          type: boolean
+          x-go-name: PreviousAllReadWrite
+        previousRoles:
+          description: "Do not change this field manually"
+          type: array
+          items:
+            type: string
+          x-go-name: PreviousRoleName
+        primaryTerm:
+          type: integer
+          format: int64
+          x-go-name: PrimaryTerm
+        rawCategory:
+          type: string
+          x-go-name: RawCategory
+        reason:
+          description: "The reason for the status (resolve)"
+          type: object
+          additionalProperties:
+            type: string
+          x-go-name: Reason
+        roles:
+          description: "The role assigned to this investigation"
+          type: array
+          items:
+            type: string
+          x-go-name: RoleName
+        runStatus:
+          $ref: "#/definitions/RunStatus"
+        sequenceNumber:
+          type: integer
+          format: int64
+          x-go-name: SeqNum
+        sizeInBytes:
+          type: integer
+          format: int64
+          x-go-name: SizeInBytes
+        slackMirrorAutoClose:
+          description: "DEPRECATED - DeprecatedSlackMirrorAutoClose will tell us to close the Slack channel if we close investigation"
+          type: boolean
+          x-go-name: DeprecatedSlackMirrorAutoClose
+        slackMirrorType:
+          description: "DEPRECATED - DeprecatedSlackMirrorType holds info about mirror direction and message type to be mirror\nmessage type can be either 'all' or 'chat'\ndirection can be either 'demisto2Slack', 'slack2Demisto' or 'both' if this investigation is mirrored to Slack"
+          type: string
+          x-go-name: DeprecatedSlackMirrorType
+        sortValues:
+          type: array
+          items:
+            type: string
+          x-go-name: SortValues
+        status:
+          $ref: "#/definitions/InvestigationStatus"
+        syncHash:
+          type: string
+          x-go-name: SyncHash
+        systems:
+          description: "The systems involved"
+          type: array
+          items:
+            $ref: "#/definitions/System"
+          x-go-name: Systems
+        tags:
+          description: "Tags"
+          type: array
+          items:
+            type: string
+          x-go-name: Tags
+        type:
+          $ref: "#/definitions/InvestigationType"
+        users:
+          description: "The users who share this investigation"
+          type: array
+          items:
+            type: string
+          x-go-name: Users
+        version:
+          type: integer
+          format: int64
+          x-go-name: Versn
+        xsoarHasReadOnlyRole:
+          type: boolean
+          x-go-name: HasReadOnlyRole
+        xsoarPreviousReadOnlyRoles:
+          type: array
+          items:
+            type: string
+          x-go-name: PreviousReadOnlyRoleName
+        xsoarReadOnlyRoles:
+          type: array
+          items:
+            type: string
+          x-go-name: ReadOnlyRoleName
+      x-go-package: "github.com/demisto/server/domain"
+
+    InvestigationSearchResponse:
+      title: InvestigationSearchResponse returns the response from the investigation search
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Investigation"
+        total:
+          type: integer
+          format: int64
+          x-go-name: Total
+
+    Incident:
+      description: "An incident can be manually opened algorithmically or arrive from an external source like SIEM.\nNote: CustomFields (an optional generic object type) is missing from swagger properties definition."
+      type: object
+      title: Incident details.
+      properties:
+        ShardID:
+          type: integer
+          format: int64
+        account:
+          description: "Account holds the tenant name so that slicing and dicing on the master can leverage bleve"
+          type: string
+          x-go-name: Account
+        activated:
+          description: "When was this activated"
+          type: string
+          format: date-time
+          x-go-name: Activated
+        activatingingUserId:
+          description: "The user that activated this investigation"
+          type: string
+          x-go-name: ActivatingUserID
+        allRead:
+          type: boolean
+          x-go-name: IsAllRead
+        allReadWrite:
+          type: boolean
+          x-go-name: IsAllReadWrite
+        attachment:
+          description: Attachments
+          type: array
+          items:
+            $ref: "#/definitions/Attachment"
+          x-go-name: Attachments
+        autime:
+          description: "AlmostUniqueTime is an attempt to have a unique sortable ID for an incident"
+          type: integer
+          format: int64
+          x-go-name: AlmostUniqueTime
+        cacheVersn:
+          type: integer
+          format: int64
+          x-go-name: CacheVersn
+        canvases:
+          description: Canvases of the incident
+          type: array
+          items:
+            type: string
+          x-go-name: Canvases
+        category:
+          description: Category
+          type: string
+          x-go-name: Category
+        closeNotes:
+          description: Notes for closing the incident
+          type: string
+          x-go-name: CloseNotes
+        closeReason:
+          description: "The reason for closing the incident (select from existing predefined values)"
+          type: string
+          x-go-name: ArchiveReason
+        closed:
+          description: "When was this closed"
+          type: string
+          format: date-time
+          x-go-name: Closed
+        closingUserId:
+          description: "The user ID that closed this investigation"
+          type: string
+          x-go-name: ClosingUserID
+        created:
+          type: string
+          format: date-time
+          x-go-name: Created
+        dbotCreatedBy:
+          description: "Who has created this event - relevant only for manual incidents"
+          type: string
+          x-go-name: CreatedBy
+        dbotCurrentDirtyFields:
+          description: "For mirroring, manage a list of current dirty fields so that we can send delta to outgoing integration"
+          type: array
+          items:
+            type: string
+          x-go-name: DBotCurrentDirtyFields
+        dbotDirtyFields:
+          description: "For mirroring, manage a list of dirty fields to not override them from the source of the incident"
+          type: array
+          items:
+            type: string
+          x-go-name: DBotDirtyFields
+        dbotMirrorDirection:
+          description: "DBotMirrorDirection of how to mirror the incident (in/out/both)"
+          type: string
+          x-go-name: DBotMirrorDirection
+        dbotMirrorId:
+          description: "DBotMirrorID of a remote system we are syncing with"
+          type: string
+          x-go-name: DBotMirrorID
+        dbotMirrorInstance:
+          description: "DBotMirrorInstance name of a mirror integration instance"
+          type: string
+          x-go-name: DBotMirrorInstance
+        dbotMirrorLastSync:
+          description: "The last time we synced this incident even if we did not update anything"
+          type: string
+          format: date-time
+          x-go-name: DBotMirrorLastSync
+        dbotMirrorTags:
+          description: "The entry tags I want to sync to remote system"
+          type: array
+          items:
+            type: string
+          x-go-name: DBotMirrorEntryTags
+        details:
+          description: "The details of the incident - reason, etc."
+          type: string
+          x-go-name: Details
+        droppedCount:
+          description: DroppedCount ...
+          type: integer
+          format: int64
+          x-go-name: DroppedCount
+        dueDate:
+          description: SLA
+          type: string
+          format: date-time
+          x-go-name: DueDate
+        feedBased:
+          description: "If this incident was triggered by a feed job"
+          type: boolean
+          x-go-name: FeedBased
+        hasRole:
+          description: "Internal field to make queries on role faster"
+          type: boolean
+          x-go-name: HasRole
+        highlight:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+          x-go-name: Highlight
+        id:
+          type: string
+          x-go-name: ID
+        indexName:
+          type: string
+          x-go-name: IndexName
+        investigationId:
+          description: "Investigation that was opened as a result of the incoming event"
+          type: string
+          x-go-name: Investigation
+        isDebug:
+          description: IsDebug ...
+          type: boolean
+          x-go-name: IsDebug
+        isPlayground:
+          description: IsPlayGround
+          type: boolean
+          x-go-name: IsPlayGround
+        labels:
+          description: "Labels related to incident - each label is composed of a type and value"
+          type: array
+          items:
+            $ref: "#/definitions/Label"
+          x-go-name: Labels
+        lastJobRunTime:
+          description: "If this incident was triggered by a job, this would be the time the **previous** job started"
+          type: string
+          format: date-time
+          x-go-name: LastJobRunTime
+        lastOpen:
+          type: string
+          format: date-time
+          x-go-name: LastOpen
+        linkedCount:
+          description: LinkedCount ...
+          type: integer
+          format: int64
+          x-go-name: LinkedCount
+        linkedIncidents:
+          description: "LinkedIncidents incidents that were marked as linked by user"
+          type: array
+          items:
+            type: string
+          x-go-name: LinkedIncidents
+        modified:
+          type: string
+          format: date-time
+          x-go-name: Modified
+        name:
+          description: "Incident Name - given by user"
+          type: string
+          x-go-name: Name
+        notifyTime:
+          description: "Incdicates when last this field was changed with a value that supposed to send a notification"
+          type: string
+          format: date-time
+          x-go-name: NotifyTime
+        numericId:
+          type: integer
+          format: int64
+          x-go-name: NumericID
+        occurred:
+          description: "When this incident has really occurred"
+          type: string
+          format: date-time
+          x-go-name: Occurred
+        openDuration:
+          description: "Duration incident was open"
+          type: integer
+          format: int64
+          x-go-name: OpenDuration
+        owner:
+          description: "The user who owns this incident"
+          type: string
+          x-go-name: OwnerID
+        parent:
+          description: Parent
+          type: string
+          x-go-name: Parent
+        phase:
+          description: Phase
+          type: string
+          x-go-name: Phase
+        playbookId:
+          description: "The associated playbook for this incident"
+          type: string
+          x-go-name: PlaybookID
+        previousAllRead:
+          type: boolean
+          x-go-name: PreviousAllRead
+        previousAllReadWrite:
+          type: boolean
+          x-go-name: PreviousAllReadWrite
+        previousRoles:
+          description: "Do not change this field manually"
+          type: array
+          items:
+            type: string
+          x-go-name: PreviousRoleName
+        primaryTerm:
+          type: integer
+          format: int64
+          x-go-name: PrimaryTerm
+        rawCategory:
+          type: string
+          x-go-name: RawCategory
+        rawCloseReason:
+          description: "The reason for closing the incident (select from existing predefined values)"
+          type: string
+          x-go-name: RawArchiveReason
+        rawJSON:
+          type: string
+          x-go-name: RawJSONData
+        rawName:
+          description: "Incident RawName"
+          type: string
+          x-go-name: RawName
+        rawPhase:
+          description: RawPhase
+          type: string
+          x-go-name: RawPhase
+        rawType:
+          description: "Incident raw type"
+          type: string
+          x-go-name: RawType
+        reason:
+          description: "The reason for the resolve"
+          type: string
+          x-go-name: Reason
+        reminder:
+          description: "When if at all to send a reminder"
+          type: string
+          format: date-time
+          x-go-name: Reminder
+        roles:
+          description: "The role assigned to this investigation"
+          type: array
+          items:
+            type: string
+          x-go-name: RoleName
+        runStatus:
+          $ref: "#/definitions/RunStatus"
+        sequenceNumber:
+          type: integer
+          format: int64
+          x-go-name: SeqNum
+        severity:
+          $ref: "#/definitions/Severity"
+        sizeInBytes:
+          type: integer
+          format: int64
+          x-go-name: SizeInBytes
+        sla:
+          description: "The SLA timestamp"
+          type: string
+          format: date-time
+          x-go-name: SLA
+        slaExpired:
+          description: "Indicates whether the SLA expired"
+          type: boolean
+          x-go-name: SLAExpired
+        sortValues:
+          type: array
+          items:
+            type: string
+          x-go-name: SortValues
+        source:
+          description: Source
+          type: string
+          x-go-name: Source
+        startDate:
+          type: string
+          format: date-time
+          x-go-name: StartDate
+        status:
+          $ref: "#/definitions/Status"
+        team:
+          description: "The team assigned to this investigation"
+          type: string
+          x-go-name: Team
+        terms:
+          type: array
+          items:
+            type: string
+          x-go-name: Terms
+        triggeredBy:
+          description: "The type of job that triggered the incident"
+          type: string
+          x-go-name: TriggeredBy
+        triggeredByJobId:
+          description: "The type of job that triggered the incident"
+          type: string
+          x-go-name: TriggeredByJobID
+        type:
+          description: "Incident type"
+          type: string
+          x-go-name: Type
+        version:
+          type: integer
+          format: int64
+          x-go-name: Version
+        xdrUrl:
+          description: "The UI URL for accessing this alert in the XDR product"
+          type: string
+          x-go-name: XDRUrl
+        assignedTask:
+          description: "The tasks assigned to this incident"
+          type: array
+          items:
+            $ref: "#/definitions/Task"
+          x-go-name: Tasks
+        scheduledTask:
+          description: "The tasks scheduled for this incident"
+          type: array
+          items:
+            $ref: "#/definitions/Task"
+          x-go-name: ScheduledTasks
+        dbotCurrentExternalIncidentId:
+          description: "The external incident ID for this incident"
+          type: string
+          x-go-name: DBotCurrentExternalIncidentID
+        rolesExp:
+          type: object
+          x-go-name: RolesExp
+        prevRolesExp:
+          type: object
+          x-go-name: PrevRolesExp
+        assigneeExp:
+          type: object
+          x-go-name: AssigneeExp
+        prevAssigneeExp:
+          type: object
+          x-go-name: PrevAssigneeExp
+        prevOwnerExp:
+          type: object
+          x-go-name: PrevOwnerExp
+        investigationParentType:
+          type: string
+          x-go-name: InvestigationParentType
+        rerun:
+          description: "Indicates that the incident needs to be re-investigated"
+          type: boolean
+          x-go-name: Rerun
+        rerunReason:
+          description: "The reason for rerun"
+          type: string
+          x-go-name: RerunReason
+        externalCategory:
+          description: "External Category from the source system"
+          type: string
+          x-go-name: ExternalCategory
+        externalAssignee:
+          description: "External Assignee from the source system"
+          type: string
+          x-go-name: ExternalAssignee
+        externalStatus:
+          description: "External status from the source system"
+          type: string
+          x-go-name: ExternalStatus
+        externalCloseReason:
+          description: "External close reason from the source system"
+          type: string
+          x-go-name: ExternalCloseReason
+        externalPhase:
+          description: "External phase from the source system"
+          type: string
+          x-go-name: ExternalPhase
+        externalId:
+          description: "External id from the source system"
+          type: string
+          x-go-name: ExternalID
+        externalType:
+          description: "External type from the source system"
+          type: string
+          x-go-name: ExternalType
+        externalOwner:
+          description: "External owner from the source system"
+          type: string
+          x-go-name: ExternalOwner
+        externalOpenDuration:
+          description: "Duration the external incident was open"
+          type: integer
+          format: int64
+          x-go-name: ExternalOpenDuration
+        externalReminder:
+          description: "External reminder from the source system"
+          type: string
+          format: date-time
+          x-go-name: ExternalReminder
+        xdrEvents:
+          description: "The events included in this incident (may include multiple alerts)"
+          type: array
+          items:
+            $ref: "#/definitions/XDREvent"
+          x-go-name: XDREvents
+        xdrEventCount:
+          description: "The count of events associated with the incident"
+          type: integer
+          format: int64
+          x-go-name: XDREventCount
+        xdrParentEventCount:
+          description: "The count of parent events associated with the incident"
+          type: integer
+          format: int64
+          x-go-name: XDRParentEventCount
+        createdTime:
+          description: "When was this created"
+          type: string
+          format: date-time
+          x-go-name: CreatedTime
+        activationTime:
+          description: "When was this activated"
+          type: string
+          format: date-time
+          x-go-name: ActivationTime
+        modificationTime:
+          description: "When was this modified"
+          type: string
+          format: date-time
+          x-go-name: ModificationTime
+        notificationTime:
+          description: "When was this notified"
+          type: string
+          format: date-time
+          x-go-name: NotificationTime
+        expirationTime:
+          description: "When does this expire"
+          type: string
+          format: date-time
+          x-go-name: ExpirationTime
+        terminationTime:
+          description: "When was this terminated"
+          type: string
+          format: date-time
+          x-go-name: TerminationTime
+        externalIncidentId:
+          description: "The external incident ID associated with the incident"
+          type: string
+          x-go-name: ExternalIncidentID
+
+    IndicatorFilter:
+      description: "IndicatorFilter is a general filter that fetches entities using a query string query using the Query value"
+      type: object
+      properties:
+        Cache:
+          description: "Cache of join functions"
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+        accounts:
+          type: object
+          additionalProperties:
+            type: object
+          x-go-name: Accounts
+        earlyTimeInPage:
+          type: string
+          format: date-time
+          x-go-name: EarlyTimeInPage
+        fields:
+          type: array
+          items:
+            type: string
+          x-go-name: Fields
+        filterobjectquery:
+          type: string
+          x-go-name: FilterObjectQuery
+        firstSeen:
+          $ref: "#/definitions/DateRangeFilter"
+        fromDate:
+          type: string
+          format: date-time
+          x-go-name: FromDate
+        fromDateLicense:
+          type: string
+          format: date-time
+          x-go-name: FromDateLicenseVal
+        ignoreWorkers:
+          description: "Do not use workers mechanism while searching bleve"
+          type: boolean
+          x-go-name: IgnoreWorkers
+        lastSeen:
+          $ref: "#/definitions/DateRangeFilter"
+        laterTimeInPage:
+          type: string
+          format: date-time
+          x-go-name: LaterTimeInPage
+        page:
+          description: "0-based page"
+          type: integer
+          format: int64
+          x-go-name: Page
+        period:
+          $ref: "#/definitions/Period"
+        prevPage:
+          description: "MT support - these fields are for indicator search according to calculatedTime"
+          type: boolean
+          x-go-name: PrevPage
+        query:
+          type: string
+          x-go-name: Query
+        searchAfter:
+          description: "Efficient next page, pass max sort value from previous page"
+          type: array
+          items:
+            type: string
+          x-go-name: SearchAfter
+        searchAfterElastic:
+          description: "Efficient next page, pass max ES sort value from previous page"
+          type: array
+          items:
+            type: string
+          x-go-name: SearchAfterElastic
+        searchAfterMap:
+          description: "Map accounts search after values - stores next page sort values per account.\nThere is no need to store searchBeforeMap as [current page searchBefore] equals to [prev page searchAfter]\nMore, there is no way to generate correct searchBefore from current page as some tenants may not appear at all.\nThe map is relevant in proxy mode and used by tenants, each tenant extracts the searchAfter keys from the map."
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+          x-go-name: SearchAfterMap
+        searchAfterMapOrder:
+          type: object
+          additionalProperties:
+            type: integer
+            format: int64
+          x-go-name: SearchAfterMapOrder
+        searchBefore:
+          description: "Efficient prev page, pass min sort value from next page"
+          type: array
+          items:
+            type: string
+          x-go-name: SearchBefore
+        searchBeforeElastic:
+          description: "Efficient prev page, pass min ES sort value from next page"
+          type: array
+          items:
+            type: string
+          x-go-name: SearchBeforeElastic
+        size:
+          description: "Size is limited to 1000, if not passed it defaults to 0, and no results will return"
+          type: integer
+          format: int64
+          x-go-name: Size
+        sort:
+          description: "The sort order"
+          type: array
+          items:
+            $ref: "#/definitions/Order"
+          x-go-name: Sort
+        timeFrame:
+          $ref: "#/definitions/Duration"
+        toDate:
+          type: string
+          format: date-time
+          x-go-name: ToDate
+        trim_events:
+          type: integer
+          format: int64
+          x-go-name: TrimEvents
+      x-go-package: "github.com/demisto/server/repo/entities"
+
+    IndicatorResult:
+      type: object
+      title: IndicatorResult
+      properties:
+        accountErrors:
+          type: array
+          items:
+            type: string
+          x-go-name: AccountErrors
+        iocObjects:
+          $ref: "#/components/schemas/IocObjects"
+        total:
+          type: integer
+          format: int64
+          x-go-name: Total
+        totalAccounts:
+          type: integer
+          format: int64
+          x-go-name: TotalAccounts
+      x-go-package: "github.com/demisto/server/web"
+
+    IocObject:
+      description: IocObject - represents an Ioc (or simply an indicator) object
+      type: object
+      properties:
+        CustomFields:
+          $ref: "#/components/schemas/CustomFields"
+        account:
+          type: string
+          x-go-name: Account
+        aggregatedReliability:
+          type: string
+          x-go-name: AggregatedReliability
+        cacheVersn:
+          type: integer
+          format: int64
+          x-go-name: CacheVersn
+        calculatedTime:
+          description: Do not set the fields bellow this line
+          type: string
+          format: date-time
+          x-go-name: CalculatedTime
+        comment:
+          type: string
+          x-go-name: Comment
+        comments:
+          $ref: "#/components/schemas/Comments"
+        created:
+          type: string
+          format: date-time
+          x-go-name: Created
+        deletedFeedFetchTime:
+          type: string
+          format: date-time
+          x-go-name: DeletedFeedFetchTime
+        expiration:
+          type: string
+          format: date-time
+          x-go-name: ExpirationTime
+        expirationSource:
+          $ref: "#/components/schemas/ExpirationSource"
+        expirationStatus:
+          $ref: '#/definitions/ExpirationStatus'
+        firstSeen:
+          type: string
+          format: date-time
+          x-go-name: FirstSeen
+        firstSeenEntryID:
+          type: string
+          x-go-name: FirstSeenEntryID
+        highlight:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+          x-go-name: Highlight
+        id:
+          type: string
+          x-go-name: ID
+        indexName:
+          type: string
+          x-go-name: IndexName
+        indicator_type:
+          type: string
+          x-go-name: Type
+        insightCache:
+          $ref: '#/definitions/InsightCache'
+        investigationIDs:
+          type: array
+          items:
+            type: string
+          x-go-name: InvestigationIDs
+        isDetectable:
+          type: boolean
+          x-go-name: IsDetectable
+        isPreventable:
+          type: boolean
+          x-go-name: IsPreventable
+        isShared:
+          type: boolean
+          x-go-name: IsShared
+        lastReputationRun:
+          type: string
+          format: date-time
+          x-go-name: LastReputationRun
+        lastSeen:
+          type: string
+          format: date-time
+          x-go-name: LastSeen
+        lastSeenEntryID:
+          type: string
+          x-go-name: LastSeenEntryID
+        manualExpirationTime:
+          type: string
+          format: date-time
+          x-go-name: ManualExpirationTime
+        manualScore:
+          type: boolean
+          x-go-name: ManualScore
+        manualSetTime:
+          type: string
+          format: date-time
+          x-go-name: ManualSetTime
+        manuallyEditedFields:
+          type: array
+          items:
+            type: string
+          x-go-name: ManuallyEditedFields
+        modified:
+          type: string
+          format: date-time
+          x-go-name: Modified
+        modifiedTime:
+          type: string
+          format: date-time
+          x-go-name: ModifiedTime
+        moduleToFeedMap:
+          type: object
+          additionalProperties:
+            $ref: '#/definitions/FeedIndicator'
+          x-go-name: ModuleToFeedMap
+        numericId:
+          type: integer
+          format: int64
+          x-go-name: NumericID
+        primaryTerm:
+          type: integer
+          format: int64
+          x-go-name: PrimaryTerm
+        relatedIncCount:
+          type: integer
+          format: int64
+          x-go-name: RelatedIncCount
+        score:
+          type: integer
+          format: int64
+          x-go-name: Score
+        sequenceNumber:
+          type: integer
+          format: int64
+          x-go-name: SeqNum
+        setBy:
+          type: string
+          x-go-name: SetBy
+        sizeInBytes:
+          type: integer
+          format: int64
+          x-go-name: SizeInBytes
+        sortValues:
+          type: array
+          items:
+            type: string
+          x-go-name: SortValues
+        source:
+          type: string
+          x-go-name: Source
+        sourceBrands:
+          type: array
+          items:
+            type: string
+          x-go-name: SourceBrands
+        sourceInstances:
+          type: array
+          items:
+            type: string
+          x-go-name: SourceInstances
+        syncHash:
+          type: string
+          x-go-name: SyncHash
+        timestamp:
+          type: string
+          format: date-time
+          x-go-name: TimeStamp
+        value:
+          type: string
+          x-go-name: Value
+        version:
+          type: integer
+          format: int64
+          x-go-name: Versn
+      x-go-package: github.com/demisto/server/domain
+
+    FeedIndicator:
+      type: object
+      title: FeedIndicator ...
+      properties:
+        ExpirationSource:
+          $ref: "#/components/schemas/ExpirationSource"
+        bypassExclusionList:
+          type: boolean
+          x-go-name: ShouldBypassExclusionList
+        classifierId:
+          type: string
+          x-go-name: ClassifierID
+        classifierVersion:
+          type: integer
+          format: int64
+          x-go-name: ClassifierVersion
+        comments:
+          type: array
+          items:
+            $ref: "#/components/schemas/FeedIndicator"
+          x-go-name: Comments
+        expirationInterval:
+          type: integer
+          format: int64
+          x-go-name: ExpirationInterval
+        expirationPolicy:
+          $ref: "#/components/schemas/ExpirationPolicy"
+        fetchTime:
+          type: string
+          format: date-time
+          x-go-name: FetchTime
+        fields:
+          $ref: "#/components/schemas/CustomFields"
+        isEnrichment:
+          type: boolean
+          x-go-name: IsEnrichment
+        mapperId:
+          type: string
+          x-go-name: MapperID
+        mapperVersion:
+          type: integer
+          format: int64
+          x-go-name: MapperVersion
+        modifiedTime:
+          type: string
+          format: date-time
+          x-go-name: ModifiedTime
+        moduleId:
+          type: string
+          x-go-name: ModuleID
+        rawJSON:
+          type: object
+          additionalProperties:
+            type: object
+          x-go-name: RawJSON
+        relationships:
+          $ref: "#/components/schemas/RelationshipsAPI"
+        reliability:
+          $ref: "#/components/schemas/Reliability"
+        score:
+          type: integer
+          format: int64
+          x-go-name: Score
+        sourceBrand:
+          type: string
+          x-go-name: Brand
+        sourceInstance:
+          type: string
+          x-go-name: Instance
+        timestamp:
+          type: string
+          format: date-time
+          x-go-name: TimeStamp
+        type:
+          type: string
+          x-go-name: Type
+        value:
+          type: string
+          x-go-name: Value
+      x-go-package: github.com/demisto/server/domain
+
+    Reliability:
+      type: string
+      title: Reliability
+      x-go-package: github.com/demisto/server/domain
+
+    RelationshipsAPI:
+      type: array
+      title: RelationshipsAPI
+      items:
+        $ref: "#/components/schemas/RelationshipAPI"
+      x-go-package: github.com/demisto/server/domain
+
+    IocObjects:
+      type: object
+      title: IocObjects
+      items:
+        $ref: "#/components/schemas/IocObject"
+
+    RelationshipAPI:
+      type: object
+      title: RelationshipAPI ...
+      properties:
+        brand:
+          type: string
+          x-go-name: Brand
+        entityA:
+          type: string
+          x-go-name: EntityA
+        entityAFamily:
+          type: string
+          x-go-name: EntityAFamily
+        entityAType:
+          type: string
+          x-go-name: EntityAType
+        entityB:
+          type: string
+          x-go-name: EntityB
+        entityBFamily:
+          type: string
+          x-go-name: EntityBFamily
+        entityBType:
+          type: string
+          x-go-name: EntityBType
+        fields:
+          $ref: "#/components/schemas/CustomFields"
+        id:
+          type: string
+          x-go-name: ID
+        instance:
+          type: string
+          x-go-name: Instance
+        name:
+          type: string
+          x-go-name: Name
+        reliability:
+          $ref: "#/components/schemas/Reliability"
+        reverseName:
+          type: string
+          x-go-name: ReverseName
+        startTime:
+          type: string
+          format: date-time
+          x-go-name: StartTime
+        type:
+          type: string
+          x-go-name: TypeID
+      x-go-package: github.com/demisto/server/domain
+
+    ExpirationPolicy:
+      type: string
+      title: ExpirationPolicy
+      x-go-package: github.com/demisto/server/domain
+
+    ExpirationSource:
+      type: object
+      title: ExpirationSource ..
+      properties:
+        brand:
+          type: string
+          x-go-name: Brand
+        expirationInterval:
+          type: integer
+          format: int64
+          x-go-name: ExpirationInterval
+        expirationPolicy:
+          $ref: "#/components/schemas/ExpirationPolicy"
+        instance:
+          type: string
+          x-go-name: Instance
+        moduleId:
+          type: string
+          x-go-name: ModuleID
+        setTime:
+          type: string
+          format: date-time
+          x-go-name: SetTime
+        source:
+          $ref: "#/components/schemas/ExpirationSettingsSource"
+        user:
+          type: string
+          x-go-name: User
+      x-go-package: github.com/demisto/server/domain
+    
+    ExpirationSettingsSource:
+      type: string
+      title: ExpirationSettingsSource
+      x-go-package: github.com/demisto/server/domain
+
+    CustomFields:
+      description: "The keys should be the field's display name all lower and without spaces. For example: Scan IP -\u003e scanip\nTo get the actual key name you can also go to Cortex XSOAR CLI and run /incident_add and look for the key that you would like to update"
+      type: object
+      title: CustomFields
+      additionalProperties:
+        type: object
+      x-go-package: github.com/demisto/server/domain
+
+    Comments:
+      type: array
+      title: Comments
+      items:
+        $ref: "#/components/schemas/Comment"
+      x-go-package: github.com/demisto/server/domain
+
+    Comment:
+      type: object
+      title: Comment ...
+      properties:
+        cacheVersn:
+          type: integer
+          format: int64
+          x-go-name: CacheVersn
+        category:
+          type: string
+          x-go-name: Category
+        content:
+          type: string
+          x-go-name: Content
+        created:
+          type: string
+          format: date-time
+          x-go-name: Created
+        entryId:
+          type: string
+          x-go-name: EntryID
+        highlight:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+          x-go-name: Highlight
+        id:
+          type: string
+          x-go-name: ID
+        indexName:
+          type: string
+          x-go-name: IndexName
+        modified:
+          type: string
+          format: date-time
+          x-go-name: Modified
+        numericId:
+          type: integer
+          format: int64
+          x-go-name: NumericID
+        primaryTerm:
+          type: integer
+          format: int64
+          x-go-name: PrimaryTerm
+        sequenceNumber:
+          type: integer
+          format: int64
+          x-go-name: SeqNum
+        sizeInBytes:
+          type: integer
+          format: int64
+          x-go-name: SizeInBytes
+        sortValues:
+          type: array
+          items:
+            type: string
+          x-go-name: SortValues
+        source:
+          type: string
+          x-go-name: Source
+        syncHash:
+          type: string
+          x-go-name: SyncHash
+        type:
+          $ref: '#/definitions/CommentType'
+        user:
+          type: string
+          x-go-name: User
+        version:
+          type: integer
+          format: int64
+          x-go-name: Versn
+      x-go-package: github.com/demisto/server/domain
+
