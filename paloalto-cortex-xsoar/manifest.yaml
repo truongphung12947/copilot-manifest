@@ -8,7 +8,7 @@ Descriptor:
     - Query to get a list of investigations, return a list of investigation details
     - Query to get a list of incidents, return a list of incident details
     - Query to get a list of indicators, return a list of indicator details
-  Icon: https://raw.githubusercontent.com/truongphung12947/copilot-manifest/main/paloalto-cortex-xsoar/crowdstrike_logo_transparent.png
+  Icon: https://raw.githubusercontent.com/truongphung12947/copilot-manifest/main/paloalto-cortex-xsoar/paloalto_cortex_xsoar_transparent.png
   SupportedAuthTypes:
     - APIKey
   Authorization:
